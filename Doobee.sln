@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doobee.Engine", "Doobee.Engine\Doobee.Engine.csproj", "{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doobee.Engine.Test", "Doobee.Engine.Test\Doobee.Engine.Test.csproj", "{E3504045-BCED-49AD-A5C4-048B3C9240B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1971E98-ECFC-4D04-AA91-D61D75EC9E63}
+	EndGlobalSection
+EndGlobal
