@@ -20,13 +20,12 @@ namespace Doobee.Engine.Test.Index
         [SetUp]
         public void Setup()
         {
-            Storage = new MemoryStorage();
-            NodeContext = new NodeDataContext(Storage);
+            Storage = new MemoryStorage();            
         }
 
-        private DataNode CreateTarget(int branchingFactor, INodeDataContext? nodeContext = null)
+        private DataNode CreateTarget(int branchingFactor, IDataStorage? storage = null)
         {
-            var item = new DataNode(nodeContext ?? NodeContext, branchingFactor);
+            var item = new DataNode(new NodeDataContext(storage ?? Storage, branchingFactor), branchingFactor);
             return item;
         }
 
@@ -51,7 +50,7 @@ namespace Doobee.Engine.Test.Index
             var target = CreateTarget(5);
             Assert.IsNotNull(target);
             target.Insert(3, 8);
-            target = CreateTarget(5, new NodeDataContext(Storage));
+            target = CreateTarget(5, Storage);
             var result = target.Query(3);
             result.ShouldBe(8);
         }
@@ -62,11 +61,11 @@ namespace Doobee.Engine.Test.Index
             var target = CreateTarget(5);
             Assert.IsNotNull(target);
             target.Insert(3, 8);
-            target = CreateTarget(5, new NodeDataContext(Storage));
+            target = CreateTarget(5, Storage);
             var result = target.Query(3);
             result.ShouldBe(8);
             target.Insert(3, 12);
-            target = CreateTarget(5, new NodeDataContext(Storage));
+            target = CreateTarget(5, Storage);
             result = target.Query(3);
             result.ShouldBe(12);
         }
@@ -77,17 +76,17 @@ namespace Doobee.Engine.Test.Index
             var target = CreateTarget(3);
             Assert.IsNotNull(target);
             target.Insert(3, 8);
-            target = CreateTarget(3, new NodeDataContext(Storage));
+            target = CreateTarget(3, Storage);
             var three = target.Query(3);
             three.ShouldBe(8);
             target.Insert(6, 9);
-            target = CreateTarget(3, new NodeDataContext(Storage));
+            target = CreateTarget(3, Storage);
             var threeB = target.Query(3);
             threeB.ShouldBe(8);
             var six = target.Query(6);
             six.ShouldBe(9);
             target.Insert(99, 12);
-            target = CreateTarget(3, new NodeDataContext(Storage));
+            target = CreateTarget(3, Storage);
             var threeC = target.Query(3);
             threeC.ShouldBe(8);
             var sixB = target.Query(6);
@@ -95,7 +94,7 @@ namespace Doobee.Engine.Test.Index
             var ninetyNine = target.Query(99);
             ninetyNine.ShouldBe(12);
             target.Insert(120, 22);
-            target = CreateTarget(3, new NodeDataContext(Storage));
+            target = CreateTarget(3, Storage);
             var threeD = target.Query(3);
             threeD.ShouldBe(8);
             var sixC = target.Query(6);

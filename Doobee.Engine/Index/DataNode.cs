@@ -11,7 +11,6 @@ namespace Doobee.Engine.Index
         private SortedList<long, NodeItem> _items;
         private NodeItem _minItem;
         private int _branchingFactor;
-        private RootItem _rootItem;
         private long? _parentAddress;
                
 
@@ -20,37 +19,17 @@ namespace Doobee.Engine.Index
             _nodeDataSource = nodeDataSource;
             _items = new SortedList<long, NodeItem>();
             _branchingFactor = branchingFactor;
-            _rootItem = new RootItem();
-            _nodeDataSource.Initialise(branchingFactor, _rootItem);
-        }
-
-        internal DataNode(INodeDataContext nodeDataSource, int branchingFactor, RootItem root)
-            : this(nodeDataSource, branchingFactor)
-        {
-            _rootItem = root;
-        }
+        }        
 
         public void Insert(long key, long address)
         {
-            if (!_rootItem.RootAddress.HasValue)
-            {
-                var newRoot = new DataNode(_nodeDataSource, _branchingFactor, _rootItem);
-                newRoot.NodeModified = true;
-                _rootItem.RootAddress = newRoot.WriteNodeToDisk();
-            }
-
-            var root = _nodeDataSource.Read(_rootItem.RootAddress.Value);
+            var root = _nodeDataSource.ReadRootNode();
             root.InsertInternal(key, address);
         }
 
         public long Query(long key)
         {
-            if (!_rootItem.RootAddress.HasValue)
-            {
-                return -1;
-            }
-
-            var root = _nodeDataSource.Read(_rootItem.RootAddress.Value);
+            var root = _nodeDataSource.ReadRootNode();
             return root.QueryInternal(key);
         }
 
@@ -121,7 +100,7 @@ namespace Doobee.Engine.Index
         private void SplitNode()
         {
             var splitIndex = _items.Count / 2;
-            var newNode = new DataNode(_nodeDataSource, _branchingFactor, _rootItem);
+            var newNode = new DataNode(_nodeDataSource, _branchingFactor);
             newNode.NodeModified = true;
             var newNodeAddress = newNode.WriteNodeToDisk();
             var rightItems = _items.Skip(splitIndex).ToList();            
@@ -156,7 +135,7 @@ namespace Doobee.Engine.Index
             var parent = BubbleUpToParent(leftItem, newNodeItem);
             _parentAddress = parent.NodeAddress;
             newNode._parentAddress = _parentAddress;
-
+            newNode.WriteNodeToDisk();
             if (parent.IsFull())
                 parent.SplitNode();
         }
@@ -174,6 +153,8 @@ namespace Doobee.Engine.Index
                 {
                     parent._minItem = left;
                 }
+                
+
                 parent._items.Add(right.Key, right);
 
 
@@ -182,11 +163,11 @@ namespace Doobee.Engine.Index
             }
             else
             {
-                var newRoot = new DataNode(_nodeDataSource, _branchingFactor, _rootItem);
+                var newRoot = new DataNode(_nodeDataSource, _branchingFactor);
                 newRoot.NodeModified = true;
-                _rootItem.RootAddress = newRoot.WriteNodeToDisk();
                 newRoot._minItem = left;
                 newRoot._items.Add(right.Key, right);
+                _nodeDataSource.SetRootNode(newRoot);
                 return newRoot;
             }
         }       

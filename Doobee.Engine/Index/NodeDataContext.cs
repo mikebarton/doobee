@@ -9,66 +9,68 @@ namespace Doobee.Engine.Index
     internal class NodeDataContext : INodeDataContext
     {
         private IDataStorage _storage;
-        private bool _isInitialised;
         private RootItem _rootItem;
         private int _branchingFactor;
         private Dictionary<long, DataNode> _cachedNodes;
 
-        public NodeDataContext(IDataStorage storage)
+        public NodeDataContext(IDataStorage storage, int branchingFactor)
         {
             _storage = storage;
-        }
-
-        public void Initialise(int branchingFactor, RootItem root)
-        {
-            if (!_isInitialised)
+            _rootItem = new RootItem();
+            _cachedNodes = new Dictionary<long, DataNode>();
+            _branchingFactor = branchingFactor;
+            if (_storage.EndOfFileAddress > sizeof(long))
             {
-                _cachedNodes = new Dictionary<long, DataNode>();
-                _branchingFactor = branchingFactor;
-                _rootItem = root;
-                _isInitialised = true;
-                if(_storage.EndOfFileAddress > sizeof(long))
-                {
-                    var rootBytes = _storage.Read(0, sizeof(long));
-                    var rootAddress = BitConverter.ToInt64(rootBytes, 0);
-                    _rootItem.RootAddress = rootAddress;
-                }
-                else
-                {
-                    if (!root.RootAddress.HasValue)
-                        root.RootAddress = sizeof(long);
+                var rootBytes = _storage.Read(0, sizeof(long));
+                var rootAddress = BitConverter.ToInt64(rootBytes, 0);
+                _rootItem.RootAddress = rootAddress;
+            }
+            else
+            {
+                if (!_rootItem.RootAddress.HasValue)
+                    _rootItem.RootAddress = sizeof(long);
 
-                    var rootBytes = BitConverter.GetBytes(root.RootAddress.Value);
-                    _storage.Write(0, rootBytes);
-                }
+                var rootBytes = BitConverter.GetBytes(_rootItem.RootAddress.Value);
+                _storage.Write(0, rootBytes);
             }
         }
 
-        public void EnsureInitialised()
+        public DataNode ReadRootNode()
         {
-            if (!_isInitialised)
-                throw new InvalidOperationException("Cannot use the NodeDataContext when it has not been intialised");
+            if (!_rootItem.RootAddress.HasValue || _rootItem.RootAddress.Value == 0)
+                throw new Exception("Root Address has not been set");
+
+            if (!HasRootNode())
+            {
+                var newRoot = new DataNode(this, _branchingFactor);
+                newRoot.NodeAddress = _rootItem.RootAddress;
+                WriteNode(newRoot);
+                return newRoot;
+            }
+
+            return Read(_rootItem.RootAddress.Value);
+        }
+
+        public void SetRootNode(DataNode node)
+        {
+            WriteNode(node);
+            _rootItem.RootAddress = node.NodeAddress;
+            _storage.Write(0, BitConverter.GetBytes(_rootItem.RootAddress.Value));
         }
 
         public long Add(DataNode node)
         {
-            EnsureInitialised();
-
             WriteNode(node);
             return node.NodeAddress.Value;
         }
 
         public DataNode Read(long address)
         {
-            EnsureInitialised();
-            
             return GetNode(address);
         }
 
         public void Update(DataNode node)
         {
-            EnsureInitialised();
-
             if (node.NodeAddress.HasValue)
             {
                 WriteNode(node);
@@ -104,7 +106,7 @@ namespace Doobee.Engine.Index
                 return _cachedNodes[address];
             else
             {
-                var newNode = new DataNode(this, _branchingFactor, _rootItem);
+                var newNode = new DataNode(this, _branchingFactor);
                 var nodeBytes = _storage.Read(address, DataNode.GetNodeSize(_branchingFactor));
                 newNode.Load(nodeBytes);
                 newNode.NodeAddress = address;

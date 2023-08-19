@@ -9,7 +9,8 @@ namespace Doobee.Engine.Index
         DataNode Read(long address);
         long Add(DataNode node);
         void Update(DataNode node);
-        void Initialise(int branchingFactor, RootItem root);
         void Flush();
+        DataNode ReadRootNode();
+        void SetRootNode(DataNode node);
     }
 }
