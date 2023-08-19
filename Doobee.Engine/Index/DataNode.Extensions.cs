@@ -105,6 +105,8 @@ namespace Doobee.Engine.Index
                 {
                     item.DataAddress = addressData;
                 }
+                item.Value = BitConverter.ToInt64(data, offset); 
+                offset += sizeof(long);
                 item.IsLeaf = BitConverter.ToBoolean(data, offset);
                 offset += sizeof(bool);
             }
@@ -121,6 +123,7 @@ namespace Doobee.Engine.Index
                 data.AddRange(BitConverter.GetBytes(item.Key));
                 data.AddRange(BitConverter.GetBytes(item.DataAddress.HasValue));
                 data.AddRange(BitConverter.GetBytes(item.DataAddress.HasValue ? item.DataAddress.Value : default(long)));
+                data.AddRange(BitConverter.GetBytes(item.Value));
                 data.AddRange(BitConverter.GetBytes(item.IsLeaf));
             }
             else
@@ -152,6 +155,7 @@ namespace Doobee.Engine.Index
             size += sizeof(long); // key
             size += sizeof(bool); // has dataaddress
             size += sizeof(long); // dataaddress
+            size += sizeof(long); // value
             size += sizeof(bool); // isleaf?
             return size;
         }

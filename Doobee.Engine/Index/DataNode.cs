@@ -21,10 +21,10 @@ namespace Doobee.Engine.Index
             _branchingFactor = branchingFactor;
         }        
 
-        public void Insert(long key, long address)
+        public void Insert(long key, long value)
         {
             var root = _nodeDataSource.ReadRootNode();
-            root.InsertInternal(key, address);
+            root.InsertInternal(key, value);
         }
 
         public long Query(long key)
@@ -53,7 +53,7 @@ namespace Doobee.Engine.Index
             if (IsLeafNode())
             {
                 if (relevantItem.Key == key)
-                    return relevantItem.DataAddress.Value;
+                    return relevantItem.Value;
                 else
                     return -1;
 
@@ -65,26 +65,26 @@ namespace Doobee.Engine.Index
             return childNode.QueryInternal(key);
         }
 
-        private void InsertInternal(long key, long address)
+        private void InsertInternal(long key, long value)
         {
             if (!IsLeafNode())
             {
                 var child = GetRelevantChildNode(key);
-                child.InsertInternal(key, address); 
+                child.InsertInternal(key, value); 
             }
             else
             {
                 NodeModified = true;
                 if (_items.ContainsKey(key))
                 {
-                    _items[key].DataAddress = address;
+                    _items[key].Value = value;
                 }
                 else
                 {
                     _items.Add(key, new NodeItem
                     {
                         Key = key,
-                        DataAddress = address,
+                        Value = value,
                         IsLeaf = true
                     });
 
