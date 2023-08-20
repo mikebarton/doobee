@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Doobee.Engine.Index
@@ -43,9 +44,7 @@ namespace Doobee.Engine.Index
             if (_items.Count == 0)
                 return -1;
 
-            var relevantItem = key < _items.Keys.Min() ?
-                                _minItem :
-                                _items.Values.LastOrDefault(x => key >= x.Key);
+            var relevantItem = GetRelevantItem(key);
             if (relevantItem == null)
                 return -1;
                 //throw new Exception($"no node item available for key {key}");
@@ -69,7 +68,8 @@ namespace Doobee.Engine.Index
         {
             if (!IsLeafNode())
             {
-                var child = GetRelevantChildNode(key);
+                var item = GetRelevantItem(key);
+                var child = _nodeDataSource.Read(item.DataAddress.Value);
                 child.InsertInternal(key, value); 
             }
             else
@@ -148,16 +148,12 @@ namespace Doobee.Engine.Index
                 parent.NodeModified = true;
                 
                 right.IsLeaf = false;
+                left.IsLeaf = false;
 
-                if(parent._minItem != null && left.Key <= parent._minItem.Key)
-                {
-                    parent._minItem = left;
-                }
-                
+                parent._items[left.Key] = left;
+                parent._items[right.Key] =right;
 
-                parent._items.Add(right.Key, right);
-
-
+                parent.WriteNodeToDisk();
 
                 return parent;
             }
@@ -165,7 +161,7 @@ namespace Doobee.Engine.Index
             {
                 var newRoot = new DataNode(_nodeDataSource, _branchingFactor);
                 newRoot.NodeModified = true;
-                newRoot._minItem = left;
+                newRoot._items.Add(left.Key, left);
                 newRoot._items.Add(right.Key, right);
                 _nodeDataSource.SetRootNode(newRoot);
                 return newRoot;
@@ -199,20 +195,22 @@ namespace Doobee.Engine.Index
             return _items.Count() == _branchingFactor;
         }
 
-        private DataNode GetRelevantChildNode(long key)
+        private NodeItem GetRelevantItem(long key)
         {
+
             NodeItem relevantItem = null;
-            if (key < _items.Min(x => x.Key))
-                relevantItem = _minItem;
+            if (_items.Count == 1)
+                relevantItem = _items.Values.First();
+            else if (key < _items.Skip(1).Min(x => x.Key))
+                relevantItem = _items.Values.FirstOrDefault();
             else
                 relevantItem = _items.Values.LastOrDefault(x => key >= x.Key);
 
             if (relevantItem == null) throw new Exception($"there is no child node for key {key}");
-            if (relevantItem.IsLeaf) throw new Exception($"can not get child node when item is a leaf - key - {key}");
-            if (!relevantItem.DataAddress.HasValue) throw new Exception($"there is no data address when it is not a leaf - key - {key}");
+            if (relevantItem.IsLeaf && relevantItem.Value == 0) throw new Exception($"Invalid value for leaf node - {key}");
+            if (!relevantItem.IsLeaf && !relevantItem.DataAddress.HasValue) throw new Exception($"there is no data address when it is not a leaf - key - {key}");
 
-            var node = _nodeDataSource.Read(relevantItem.DataAddress.Value);
-            return node;
+            return relevantItem;            
         }
 
         public void Dispose()

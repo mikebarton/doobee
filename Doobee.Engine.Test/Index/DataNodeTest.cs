@@ -109,36 +109,40 @@ namespace Doobee.Engine.Test.Index
         public void Can_split_node_with_reverse_keys()
         {
             var target = CreateTarget(3);
-            Assert.IsNotNull(target);
+            target.ShouldNotBeNull();
 
             target.Insert(120, 22);
+            target = CreateTarget(3, Storage);
             var oneTwenty = target.Query(120);
-            Assert.AreEqual(22, oneTwenty);
+            oneTwenty.ShouldBe(22);
 
             target.Insert(99, 12);
+            target = CreateTarget(3, Storage);
             var ninetyNineB = target.Query(99);
-            Assert.AreEqual(12, ninetyNineB);
+            ninetyNineB.ShouldBe(12);
             var oneTwentyB = target.Query(120);
-            Assert.AreEqual(22, oneTwentyB);
+            oneTwentyB.ShouldBe(22);
 
             target.Insert(6, 9);
+            target = CreateTarget(3, Storage);
             var six = target.Query(6);
-            Assert.AreEqual(9, six);
+            six.ShouldBe(9);
             var ninetyNine = target.Query(99);
-            Assert.AreEqual(12, ninetyNine);
+            ninetyNine.ShouldBe(12);
             var oneTwentyC = target.Query(120);
-            Assert.AreEqual(22, oneTwentyC);
+            oneTwentyC.ShouldBe(22);
 
             target.Insert(3, 8);
+            target = CreateTarget(3, Storage);
             var three = target.Query(3);
-            Assert.AreEqual(8, three);
+            three.ShouldBe(8);
 
             var threeB = target.Query(6);
-            Assert.AreEqual(9, threeB);
+            threeB.ShouldBe(9);
             var threeC = target.Query(99);
-            Assert.AreEqual(12, threeC);
+            threeC.ShouldBe(12);
             var sixB = target.Query(120);
-            Assert.AreEqual(22, sixB);
+            sixB.ShouldBe(22);
 
         }
 
@@ -146,35 +150,37 @@ namespace Doobee.Engine.Test.Index
         public void Can_split_root()
         {
             var target = CreateTarget(3);
-            Assert.IsNotNull(target);
+            target.ShouldNotBeNull();
             target.Insert(3, 8);
             target.Insert(6, 9);
             target.Insert(99, 12);
+            target = CreateTarget(3, Storage);
             var three = target.Query(3);
-            Assert.AreEqual(8, three);
+            three.ShouldBe(8);
             var six = target.Query(6);
-            Assert.AreEqual(9, six);
+            six.ShouldBe(9);
             var ninetyNine = target.Query(99);
-            Assert.AreEqual(12, ninetyNine);
+            ninetyNine.ShouldBe(12);
         }
 
         [Test]
         public void Can_split_root_with_reverse_keys()
         {
             var target = CreateTarget(3);
-            Assert.IsNotNull(target);
+            target.ShouldNotBeNull();
             target.Insert(99, 12);
             target.Insert(6, 9);
             target.Insert(3, 8);
             target.Insert(1, 4);
+            target = CreateTarget(3, Storage);
             var one = target.Query(1);
-            Assert.AreEqual(4, one);
+            one.ShouldBe(4);
             var three = target.Query(3);
-            Assert.AreEqual(8, three);
+            three.ShouldBe(8);
             var six = target.Query(6);
-            Assert.AreEqual(9, six);
+            six.ShouldBe(9);
             var ninetyNine = target.Query(99);
-            Assert.AreEqual(12, ninetyNine);
+            ninetyNine.ShouldBe(12);
         }
 
         [Test]
@@ -185,8 +191,9 @@ namespace Doobee.Engine.Test.Index
             target.Insert(80, 81);
             target.Insert(60, 61);
             target.Insert(40, 41);
+            target = CreateTarget(10, Storage);
             var result = target.Query(20);
-            Assert.AreEqual(-1, result);
+            result.ShouldBe(-1);
         }
 
         [Test]
@@ -205,8 +212,9 @@ namespace Doobee.Engine.Test.Index
             target.Insert(30, 31);
             target.Insert(20, 21);
             target.Insert(10, 11);
+            target = CreateTarget(10, Storage);
             var result = target.Query(5);
-            Assert.AreEqual(-1, result);
+            result.ShouldBe(-1);
         }
 
         [Test]
@@ -225,8 +233,9 @@ namespace Doobee.Engine.Test.Index
             target.Insert(30, 31);
             target.Insert(20, 21);
             target.Insert(10, 11);
+            target = CreateTarget(10, Storage);
             var result = target.Query(10);
-            Assert.AreEqual(11, result);
+            result.ShouldBe(11);
         }
 
 
@@ -256,13 +265,13 @@ namespace Doobee.Engine.Test.Index
                 }
             }
 
-
+            target = CreateTarget(branchingTestor, Storage);
             foreach (var item in data)
             {
                 try
                 {
                     var val = target.Query(item.Key);
-                    Assert.AreEqual(item.Value, val);
+                    val.ShouldBe(item.Value);
                 }
                 catch (Exception e)
                 {
@@ -293,13 +302,13 @@ namespace Doobee.Engine.Test.Index
                     }
                 }
 
-
+                target = CreateTarget(branchingTestor, Storage);
                 foreach (var item in data)
                 {
                     try
                     {
                         var val = target.Query(item.Key);
-                        Assert.AreEqual(item.Value, val);
+                        val.ShouldBe(item.Value);
                     }
                     catch (Exception e)
                     {
