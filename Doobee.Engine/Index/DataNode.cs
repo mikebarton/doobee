@@ -10,7 +10,6 @@ namespace Doobee.Engine.Index
     {
         private INodeDataContext _nodeDataSource;
         private SortedList<long, NodeItem> _items;
-        private NodeItem _minItem;
         private int _branchingFactor;
         private long? _parentAddress;
                

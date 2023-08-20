@@ -10,16 +10,7 @@ namespace Doobee.Engine.Index
     {
         public void Load(byte[] data)
         {
-            var offset = 0;
-
-            var hasMinItem = BitConverter.ToBoolean(data, offset);
-            offset += sizeof(bool);
-
-            var minItemsBytes = data.Skip(offset).Take(GetNodeItemSize());
-            offset += GetNodeItemSize();
-
-            if (hasMinItem)
-                _minItem = ToNodeItem(minItemsBytes.ToArray());
+            var offset = 0;            
 
             var count = BitConverter.ToInt32(data, offset);
             offset += sizeof(int);
@@ -60,11 +51,7 @@ namespace Doobee.Engine.Index
 
         public byte[] ToByteArray()
         {
-            var data = new List<byte>();
-
-            var hasMinItem = _minItem != null;
-            data.AddRange(BitConverter.GetBytes(hasMinItem));
-            data.AddRange(GetNodeItemBytes(_minItem));
+            var data = new List<byte>();            
 
             data.AddRange(BitConverter.GetBytes(_items.Count));
             for (int i = 0; i < _branchingFactor; i++)
@@ -136,8 +123,6 @@ namespace Doobee.Engine.Index
         public static int GetNodeSize(int branchingFactor)
         {
             var size = 0;
-            size += sizeof(bool); // hasMinItem
-            size += GetNodeItemSize(); // minItem 
             size += sizeof(int); // number of items
             size += GetNodeItemSize() * branchingFactor; // all the nodeitems
             size += sizeof(bool); // has parent address?
