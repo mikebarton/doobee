@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doobee.Engine", "Doobee.Engine\Doobee.Engine.csproj", "{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Doobee.Engine", "Doobee.Engine\Doobee.Engine.csproj", "{67BB5C40-ADD0-4F23-AEFF-71D2FE203F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doobee.Engine.Test", "Doobee.Engine.Test\Doobee.Engine.Test.csproj", "{E3504045-BCED-49AD-A5C4-048B3C9240B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Doobee.Engine.Test", "Doobee.Engine.Test\Doobee.Engine.Test.csproj", "{E3504045-BCED-49AD-A5C4-048B3C9240B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doobee.Parser", "Doobee.Parser\Doobee.Parser.csproj", "{A79A81A2-3FE6-4298-806F-EE5132BBD7FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3504045-BCED-49AD-A5C4-048B3C9240B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A79A81A2-3FE6-4298-806F-EE5132BBD7FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A79A81A2-3FE6-4298-806F-EE5132BBD7FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A79A81A2-3FE6-4298-806F-EE5132BBD7FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A79A81A2-3FE6-4298-806F-EE5132BBD7FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
