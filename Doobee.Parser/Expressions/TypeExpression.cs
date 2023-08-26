@@ -6,33 +6,14 @@ using System.Threading.Tasks;
 
 namespace Doobee.Parser.Expressions
 {
-    internal abstract class TypeExpression
-    {
-        public TypeExpression()
-        {
-            
-        }
-        public string TypeName { get; set; }
-        public TypeEnum TypeInstance { get; set; }
-        public enum TypeEnum
-        {
-            Int,
-            Bool,
-            Text
-        }
-    }
+    public abstract class TypeExpression
+    {}
 
-    internal class BoolTypeExpression : TypeExpression
-    {
-        public BoolTypeExpression()
-        {}
-    }
+    public class BoolTypeExpression : TypeExpression
+    {}
 
-    internal class TextTypeExpression : TypeExpression { }
+    public class TextTypeExpression : TypeExpression { }
 
-    internal class IntTypeExpression : TypeExpression
-    {
-        public IntTypeExpression()
-        {}
-    }
+    public class IntTypeExpression : TypeExpression
+    {}
 }

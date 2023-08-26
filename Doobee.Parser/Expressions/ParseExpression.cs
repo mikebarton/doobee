@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Doobee.Parser.Expressions
 {
-    public class IdExpression
+    public class ParseExpression
     {
-        public string Id { get; set; }
+        public bool IsCreateTableStatement => this is CreateTableExpression;
     }
 }

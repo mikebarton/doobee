@@ -1,5 +1,5 @@
 ﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
+using Doobee.Parser.Expressions;
 using Doobee.Parser.Visitors;
 using System;
 using System.Collections.Generic;
@@ -9,22 +9,18 @@ using System.Threading.Tasks;
 
 namespace Doobee.Parser
 {
-    internal class Program
+    public class SqlParser
     {
-
-        public static void Main(string[] args)
+        public ParseExpression ParseStatement(string sqlStatement)
         {
-            string discount = "create table foo(id INT primary key NOT NULL, words TEXT null, isgood bool not null)";
-            AntlrInputStream inputStream = new AntlrInputStream(discount);
+            AntlrInputStream inputStream = new AntlrInputStream(sqlStatement);
             var lexer = new DoobeeSqlLexer(inputStream);
-
-
             var tokens = new CommonTokenStream(lexer);
             var parser = new DoobeeSqlParser(tokens);
             parser.BuildParseTree = true;
             var tree = parser.create_tbl_stmt();
             var expression = tree.Accept(new CreateTableVisitor());
-
+            return expression;
         }
     }
 }

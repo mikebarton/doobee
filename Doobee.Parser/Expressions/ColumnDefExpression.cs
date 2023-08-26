@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Doobee.Parser.Expressions
 {
-    internal class ColumnDefExpression
+    public class ColumnDefExpression
     {
         public ColumnDefExpression(IdExpression columnName, TypeExpression type, List<ColumnConstraintExpression> constraints)
         {

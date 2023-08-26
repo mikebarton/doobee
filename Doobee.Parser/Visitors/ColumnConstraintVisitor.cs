@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 using Doobee.Parser.Expressions;
 using System;
 using System.Collections.Generic;
@@ -10,13 +11,21 @@ namespace Doobee.Parser.Visitors
 {
     internal class ColumnConstraintVisitor : DoobeeSqlParserBaseVisitor<ColumnConstraintExpression>
     {
-        public override ColumnConstraintExpression VisitColumn_constraint([NotNull] DoobeeSqlParser.Column_constraintContext context)
+        public override ColumnConstraintExpression VisitColumn_constraint([NotNull] Parser.Column_constraintContext context)
         {            
-            if ((context.PRIMARY() != null && context.KEY() == null) || (context.PRIMARY() == null && context.KEY() != null))
+            var primaryContext = context.PRIMARY();
+            var keyContext = context.KEY();
+            var notContext = context.NOT();
+            var nullContext = context.NULL();
+
+            var isValid = (ITerminalNode? node) => node != null && node.Symbol.TokenIndex > -1;
+
+            if((isValid(primaryContext) && !isValid(keyContext)) || (!isValid(primaryContext) && isValid(keyContext)))
                 throw new Exception("Invalid declaration of partial primary key");
 
-            var isPk = context.PRIMARY() != null && context.KEY() != null;
-            var notNull = context.NOT() != null && context.NULL() != null;
+
+            var isPk = isValid(primaryContext) && isValid(keyContext);
+            var notNull = isValid(notContext) && isValid(nullContext);
 
             return new ColumnConstraintExpression(isPk, notNull);
         }

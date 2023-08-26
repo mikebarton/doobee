@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Doobee.Parser.Expressions
 {
-    internal class CreateTableExpression
+    public class CreateTableExpression : ParseExpression
     {
-        public CreateTableExpression()
-        {
-            
-        }
+        
         public CreateTableExpression(IdExpression id, List<ColumnDefExpression> columns) 
         {
             TableName = id;

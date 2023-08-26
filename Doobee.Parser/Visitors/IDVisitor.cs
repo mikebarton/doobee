@@ -21,22 +21,22 @@ namespace Doobee.Parser.Visitors
             return new IdExpression();
         }
 
-        public IdExpression VisitColumn_constraint([NotNull] DoobeeSqlParser.Column_constraintContext context)
+        public IdExpression VisitColumn_constraint([NotNull] Parser.Column_constraintContext context)
         {
             return new IdExpression();
         }
 
-        public IdExpression VisitColumn_def([NotNull] DoobeeSqlParser.Column_defContext context)
+        public IdExpression VisitColumn_def([NotNull] Parser.Column_defContext context)
         {
             return new IdExpression();
         }
 
-        public IdExpression VisitColumn_defs([NotNull] DoobeeSqlParser.Column_defsContext context)
+        public IdExpression VisitColumn_defs([NotNull] Parser.Column_defsContext context)
         {
             return new IdExpression();
         }
 
-        public IdExpression VisitCreate_tbl_stmt([NotNull] DoobeeSqlParser.Create_tbl_stmtContext context)
+        public IdExpression VisitCreate_tbl_stmt([NotNull] Parser.Create_tbl_stmtContext context)
         {
             return new IdExpression();
         }
@@ -51,7 +51,7 @@ namespace Doobee.Parser.Visitors
             return new IdExpression() { Id = node.GetText() };
         }
 
-        public IdExpression VisitType_name([NotNull] DoobeeSqlParser.Type_nameContext context)
+        public IdExpression VisitType_name([NotNull] Parser.Type_nameContext context)
         {
             return new IdExpression();
         }
