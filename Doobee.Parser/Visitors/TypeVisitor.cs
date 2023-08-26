@@ -10,7 +10,7 @@ namespace Doobee.Parser.Visitors
 {
     internal class TypeVisitor : DoobeeSqlParserBaseVisitor<TypeExpression>
     {
-        public override TypeExpression VisitType_name([NotNull] Parser.Type_nameContext context)
+        public override TypeExpression VisitType_name([NotNull] DoobeeSqlParser.Type_nameContext context)
         {
             if (context.INT() != null)
                 return new IntTypeExpression();

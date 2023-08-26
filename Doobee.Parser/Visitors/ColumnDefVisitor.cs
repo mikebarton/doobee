@@ -12,7 +12,7 @@ namespace Doobee.Parser.Visitors
     internal class ColumnDefVisitor : DoobeeSqlParserBaseVisitor<ColumnDefExpression>
     {      
 
-        public override ColumnDefExpression VisitColumn_def([NotNull] Parser.Column_defContext context)
+        public override ColumnDefExpression VisitColumn_def([NotNull] DoobeeSqlParser.Column_defContext context)
         {
             var colName = context.ID().Accept(new IDVisitor());
             var typeExpression = context.type_name().Accept(new TypeVisitor());

@@ -11,7 +11,7 @@ namespace Doobee.Parser.Visitors
 {
     internal class ColumnConstraintVisitor : DoobeeSqlParserBaseVisitor<ColumnConstraintExpression>
     {
-        public override ColumnConstraintExpression VisitColumn_constraint([NotNull] Parser.Column_constraintContext context)
+        public override ColumnConstraintExpression VisitColumn_constraint([NotNull] DoobeeSqlParser.Column_constraintContext context)
         {            
             var primaryContext = context.PRIMARY();
             var keyContext = context.KEY();

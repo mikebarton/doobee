@@ -19,8 +19,17 @@ namespace Doobee.Parser
             var parser = new DoobeeSqlParser(tokens);
             parser.BuildParseTree = true;
             var tree = parser.create_tbl_stmt();
-            var expression = tree.Accept(new CreateTableVisitor());
-            return expression;
+            if (tree.exception != null)
+                throw new SqlParseException("the supplied sql statement was invalid");
+            try
+            {
+                var expression = tree.Accept(new CreateTableVisitor());               
+                return expression;
+            }
+            catch(Exception e)
+            {
+                throw new SqlParseException("an unknown error occurred while parsing sql");
+            }
         }
     }
 }
