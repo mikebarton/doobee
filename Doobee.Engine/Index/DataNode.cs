@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Doobee.Engine.Index
 {
@@ -21,24 +22,24 @@ namespace Doobee.Engine.Index
             _branchingFactor = branchingFactor;
         }        
 
-        public void Insert(long key, long value)
+        public async Task Insert(long key, long value)
         {
-            var root = _nodeDataSource.ReadRootNode();
-            root.InsertInternal(key, value);
+            var root = await _nodeDataSource.ReadRootNode().ConfigureAwait(false);
+            await root.InsertInternal(key, value).ConfigureAwait(false);
         }
 
-        public long Query(long key)
+        public async Task<long> Query(long key)
         {
-            var root = _nodeDataSource.ReadRootNode();
-            return root.QueryInternal(key);
+            var root = await _nodeDataSource.ReadRootNode().ConfigureAwait(false);
+            return await root.QueryInternal(key).ConfigureAwait(false);
         }
 
-        public void Flush()
+        public Task Flush()
         {
-            _nodeDataSource.Flush();
+            return _nodeDataSource.Flush();
         }
 
-        private long QueryInternal(long key)
+        private async Task<long> QueryInternal(long key)
         {
             if (_items.Count == 0)
                 return -1;
@@ -57,19 +58,19 @@ namespace Doobee.Engine.Index
 
             }
 
-            var childNode = _nodeDataSource.Read(relevantItem.DataAddress.Value);
+            var childNode = await _nodeDataSource.Read(relevantItem.DataAddress.Value).ConfigureAwait(false);
             if (childNode == null)
                 throw new Exception($"No child available for key {key} at address {relevantItem.DataAddress}");
-            return childNode.QueryInternal(key);
+            return await childNode.QueryInternal(key).ConfigureAwait(false);
         }
 
-        private void InsertInternal(long key, long value)
+        private async Task InsertInternal(long key, long value)
         {
             if (!IsLeafNode())
             {
                 var item = GetRelevantItem(key);
-                var child = _nodeDataSource.Read(item.DataAddress.Value);
-                child.InsertInternal(key, value); 
+                var child = await _nodeDataSource.Read(item.DataAddress.Value).ConfigureAwait(false);
+                await child.InsertInternal(key, value).ConfigureAwait(false); 
             }
             else
             {
@@ -89,19 +90,19 @@ namespace Doobee.Engine.Index
 
                     if (IsFull())
                     {
-                        SplitNode();
+                        await SplitNode().ConfigureAwait(false);
                     }
                 }
-                WriteNodeToDisk();
+                await WriteNodeToDisk().ConfigureAwait(false);
             }
         }
 
-        private void SplitNode()
+        private async Task SplitNode()
         {
             var splitIndex = _items.Count / 2;
             var newNode = new DataNode(_nodeDataSource, _branchingFactor);
             newNode.NodeModified = true;
-            var newNodeAddress = newNode.WriteNodeToDisk();
+            var newNodeAddress = await newNode.WriteNodeToDisk().ConfigureAwait(false);
             var rightItems = _items.Skip(splitIndex).ToList();            
             _items = new SortedList<long, NodeItem>(_items.Values.Take(splitIndex).ToDictionary(x => x.Key));
             NodeModified = true;
@@ -111,7 +112,7 @@ namespace Doobee.Engine.Index
                 newNode._items.Add(item.Key, item.Value);
                 if (!item.Value.IsLeaf)
                 {
-                    var childNode = _nodeDataSource.Read(item.Value.DataAddress.Value);
+                    var childNode = await _nodeDataSource.Read(item.Value.DataAddress.Value).ConfigureAwait(false);
                     childNode._parentAddress = newNodeAddress;
                     childNode.NodeModified = true;
                 }
@@ -131,19 +132,19 @@ namespace Doobee.Engine.Index
                 IsLeaf = false
             };
 
-            var parent = BubbleUpToParent(leftItem, newNodeItem);
+            var parent = await BubbleUpToParent(leftItem, newNodeItem).ConfigureAwait(false);
             _parentAddress = parent.NodeAddress;
             newNode._parentAddress = _parentAddress;
-            newNode.WriteNodeToDisk();
+            await newNode.WriteNodeToDisk().ConfigureAwait(false);
             if (parent.IsFull())
-                parent.SplitNode();
+                await parent.SplitNode().ConfigureAwait(false);
         }
                 
-        private DataNode BubbleUpToParent(NodeItem left, NodeItem right)
+        private async Task<DataNode> BubbleUpToParent(NodeItem left, NodeItem right)
         {
             if (_parentAddress.HasValue)
             {
-                var parent = _nodeDataSource.Read(_parentAddress.Value);
+                var parent = await _nodeDataSource.Read(_parentAddress.Value).ConfigureAwait(false);
                 parent.NodeModified = true;
                 
                 right.IsLeaf = false;
@@ -152,7 +153,7 @@ namespace Doobee.Engine.Index
                 parent._items[left.Key] = left;
                 parent._items[right.Key] =right;
 
-                parent.WriteNodeToDisk();
+                await parent.WriteNodeToDisk().ConfigureAwait(false);
 
                 return parent;
             }
@@ -162,20 +163,20 @@ namespace Doobee.Engine.Index
                 newRoot.NodeModified = true;
                 newRoot._items.Add(left.Key, left);
                 newRoot._items.Add(right.Key, right);
-                _nodeDataSource.SetRootNode(newRoot);
+                await _nodeDataSource.SetRootNode(newRoot).ConfigureAwait(false);
                 return newRoot;
             }
         }       
         
-        private long WriteNodeToDisk()
+        private async Task<long> WriteNodeToDisk()
         {
             if (NodeModified)
             {
                 if (NodeAddress.HasValue)
-                    _nodeDataSource.Update(this);
+                    await _nodeDataSource.Update(this).ConfigureAwait(false);
                 else
                 {
-                    NodeAddress = _nodeDataSource.Add(this);
+                    NodeAddress = await _nodeDataSource.Add(this).ConfigureAwait(false);
                 }
             }
             if (!NodeAddress.HasValue)
@@ -196,7 +197,6 @@ namespace Doobee.Engine.Index
 
         private NodeItem GetRelevantItem(long key)
         {
-
             NodeItem relevantItem = null;
             if (_items.Count == 1)
                 relevantItem = _items.Values.First();

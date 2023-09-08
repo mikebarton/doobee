@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Doobee.Storage
 {
     internal abstract class DataStorageBase : IDataStorage
     {
-        public long Write(long? address, byte[] data)
+        public async Task<long> Write(long? address, byte[] data)
         {
             long result = default(long);
             if (address.HasValue)
@@ -20,21 +21,21 @@ namespace Doobee.Storage
                 Storage.Position = Storage.Length;
                 result = Storage.Length;
             }
-            Storage.Write(data, 0, data.Length);
+            await Storage.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
             return result;
         }
 
-        public byte[] Read(long address, int count)
+        public async Task<byte[]> Read(long address, long count)
         {
             Storage.Seek(address, SeekOrigin.Begin);            
             var buffer = new byte[count];
-            Storage.Read(buffer, 0, buffer.Length);
+            await Storage.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
             return buffer;
         }
 
-        public virtual void Flush()
+        public virtual Task Flush()
         {
-            Storage.Flush();
+            return Storage.FlushAsync();
         }
 
         public long EndOfFileAddress

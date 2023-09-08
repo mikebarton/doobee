@@ -3,6 +3,7 @@ using Doobee.Storage;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Doobee.Engine.Index
 {
@@ -18,10 +19,14 @@ namespace Doobee.Engine.Index
             _storage = storage;
             _rootItem = new RootItem();
             _cachedNodes = new Dictionary<long, DataNode>();
-            _branchingFactor = branchingFactor;
+            _branchingFactor = branchingFactor;            
+        }
+
+        public async Task Initialise()
+        {
             if (_storage.EndOfFileAddress > sizeof(long))
             {
-                var rootBytes = _storage.Read(0, sizeof(long));
+                var rootBytes = await _storage.Read(0, sizeof(long));
                 var rootAddress = BitConverter.ToInt64(rootBytes, 0);
                 _rootItem.RootAddress = rootAddress;
             }
@@ -31,11 +36,11 @@ namespace Doobee.Engine.Index
                     _rootItem.RootAddress = sizeof(long);
 
                 var rootBytes = BitConverter.GetBytes(_rootItem.RootAddress.Value);
-                _storage.Write(0, rootBytes);
+                await _storage.Write(0, rootBytes);
             }
         }
 
-        public DataNode ReadRootNode()
+        public async Task<DataNode> ReadRootNode()
         {
             if (!_rootItem.RootAddress.HasValue || _rootItem.RootAddress.Value == 0)
                 throw new Exception("Root Address has not been set");
@@ -44,36 +49,36 @@ namespace Doobee.Engine.Index
             {
                 var newRoot = new DataNode(this, _branchingFactor);
                 newRoot.NodeAddress = _rootItem.RootAddress;
-                WriteNode(newRoot);
+                await WriteNode(newRoot).ConfigureAwait(false);
                 return newRoot;
             }
 
-            return Read(_rootItem.RootAddress.Value);
+            return await Read(_rootItem.RootAddress.Value).ConfigureAwait(false);
         }
 
-        public void SetRootNode(DataNode node)
+        public async Task SetRootNode(DataNode node)
         {
-            WriteNode(node);
+            await WriteNode(node).ConfigureAwait(false);
             _rootItem.RootAddress = node.NodeAddress;
-            _storage.Write(0, BitConverter.GetBytes(_rootItem.RootAddress.Value));
+            await _storage.Write(0, BitConverter.GetBytes(_rootItem.RootAddress.Value)).ConfigureAwait(false);
         }
 
-        public long Add(DataNode node)
+        public async Task<long> Add(DataNode node)
         {
-            WriteNode(node);
+            await WriteNode(node).ConfigureAwait(false);
             return node.NodeAddress.Value;
         }
 
-        public DataNode Read(long address)
+        public Task<DataNode> Read(long address)
         {
             return GetNode(address);
         }
 
-        public void Update(DataNode node)
+        public async Task Update(DataNode node)
         {
             if (node.NodeAddress.HasValue)
             {
-                WriteNode(node);
+                await WriteNode(node).ConfigureAwait(false);
             }
             else
             {
@@ -86,28 +91,28 @@ namespace Doobee.Engine.Index
             return _storage.EndOfFileAddress > DataNode.GetNodeSize(_branchingFactor);
         }
 
-        private void WriteNode(DataNode node)
+        private async Task WriteNode(DataNode node)
         {
             var data = node.ToByteArray();
             if (node.NodeAddress.HasValue)
             {
-                _storage.Write(node.NodeAddress.Value, data);
+                await _storage.Write(node.NodeAddress.Value, data).ConfigureAwait(false);
             }
             else
             {
-                node.NodeAddress = _storage.Write(null, data);
+                node.NodeAddress = await _storage.Write(null, data).ConfigureAwait(false);
                 _cachedNodes.Add(node.NodeAddress.Value, node);                
             }
         }
 
-        private DataNode GetNode(long address)
+        private async Task<DataNode> GetNode(long address)
         {
             if (_cachedNodes.ContainsKey(address))
                 return _cachedNodes[address];
             else
             {
                 var newNode = new DataNode(this, _branchingFactor);
-                var nodeBytes = _storage.Read(address, DataNode.GetNodeSize(_branchingFactor));
+                var nodeBytes = await _storage.Read(address, DataNode.GetNodeSize(_branchingFactor)).ConfigureAwait(false);
                 newNode.Load(nodeBytes);
                 newNode.NodeAddress = address;
                 _cachedNodes.Add(address, newNode);
@@ -115,22 +120,22 @@ namespace Doobee.Engine.Index
             }
         }
 
-        public void Flush()
+        public async Task Flush()
         {
             var rootBytes = BitConverter.GetBytes(_rootItem.RootAddress.HasValue ? _rootItem.RootAddress.Value : 0);
-            _storage.Write(0, rootBytes);
+            await _storage.Write(0, rootBytes).ConfigureAwait(false);
 
             foreach (var node in _cachedNodes.Values)
             {
-                if(node.NodeModified)
-                    WriteNode(node);
+                if (node.NodeModified)
+                    await WriteNode(node).ConfigureAwait(false);
             }
-            _storage.Flush();
+            await _storage.Flush().ConfigureAwait(false);
         }
 
         public void Dispose()
         {
-            Flush();
+            Flush().GetAwaiter().GetResult();
             _storage.Dispose();
         }
     }

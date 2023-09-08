@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Shouldly;
 using NUnit.Framework;
+using System.Runtime.CompilerServices;
 
 namespace Doobee.Engine.Test.Index
 {
@@ -25,7 +26,9 @@ namespace Doobee.Engine.Test.Index
 
         private DataNode CreateTarget(int branchingFactor, IDataStorage? storage = null)
         {
-            var item = new DataNode(new NodeDataContext(storage ?? Storage, branchingFactor), branchingFactor);
+            var context = new NodeDataContext(storage ?? Storage, branchingFactor);
+            context.Initialise().GetAwaiter().GetResult();
+            var item = new DataNode(context, branchingFactor);
             return item;
         }
 
@@ -37,204 +40,204 @@ namespace Doobee.Engine.Test.Index
         }
 
         [Test]
-        public void Can_query_empty_data_node()
+        public async Task Can_query_empty_data_node()
         {
             var target = CreateTarget(5);
-            var result = target.Query(1);
+            var result = await target.Query(1);
             result.ShouldBe(-1);
         }
 
         [Test]
-        public void Can_insert_single_item()
+        public async Task Can_insert_single_item()
         {
             var target = CreateTarget(5);
             Assert.IsNotNull(target);
-            target.Insert(3, 8);
+            await target.Insert(3, 8);
             target = CreateTarget(5, Storage);
-            var result = target.Query(3);
+            var result = await target.Query(3);
             result.ShouldBe(8);
         }
 
         [Test]
-        public void Can_insert_existing_key_with_different_address()
+        public async Task Can_insert_existing_key_with_different_address()
         {
             var target = CreateTarget(5);
             Assert.IsNotNull(target);
-            target.Insert(3, 8);
+            await target.Insert(3, 8);
             target = CreateTarget(5, Storage);
-            var result = target.Query(3);
+            var result = await target.Query(3);
             result.ShouldBe(8);
-            target.Insert(3, 12);
+            await target.Insert(3, 12);
             target = CreateTarget(5, Storage);
-            result = target.Query(3);
+            result = await target.Query(3);
             result.ShouldBe(12);
         }
 
         [Test]
-        public void Can_split_node()
+        public async Task Can_split_node()
         {
             var target = CreateTarget(3);
             Assert.IsNotNull(target);
-            target.Insert(3, 8);
+            await target.Insert(3, 8);
             target = CreateTarget(3, Storage);
-            var three = target.Query(3);
+            var three =  await target.Query(3);
             three.ShouldBe(8);
-            target.Insert(6, 9);
+            await target.Insert(6, 9);
             target = CreateTarget(3, Storage);
-            var threeB = target.Query(3);
+            var threeB = await target.Query(3);
             threeB.ShouldBe(8);
-            var six = target.Query(6);
+            var six = await target.Query(6);
             six.ShouldBe(9);
-            target.Insert(99, 12);
+            await target.Insert(99, 12);
             target = CreateTarget(3, Storage);
-            var threeC = target.Query(3);
+            var threeC = await target.Query(3);
             threeC.ShouldBe(8);
-            var sixB = target.Query(6);
+            var sixB =   await target.Query(6);
             sixB.ShouldBe(9);
-            var ninetyNine = target.Query(99);
+            var ninetyNine = await target.Query(99);
             ninetyNine.ShouldBe(12);
-            target.Insert(120, 22);
+            await target.Insert(120, 22);
             target = CreateTarget(3, Storage);
-            var threeD = target.Query(3);
+            var threeD = await target.Query(3);
             threeD.ShouldBe(8);
-            var sixC = target.Query(6);
+            var sixC = await target.Query(6);
             sixC.ShouldBe(9);
-            var ninetyNineB = target.Query(99);
+            var ninetyNineB = await target.Query(99);
             ninetyNineB.ShouldBe(12);
-            var oneTwenty = target.Query(120);
+            var oneTwenty = await target.Query(120);
             oneTwenty.ShouldBe(22);
         }
 
         [Test]
-        public void Can_split_node_with_reverse_keys()
+        public async Task Can_split_node_with_reverse_keys()
         {
             var target = CreateTarget(3);
             target.ShouldNotBeNull();
 
-            target.Insert(120, 22);
+            await target.Insert(120, 22);
             target = CreateTarget(3, Storage);
-            var oneTwenty = target.Query(120);
+            var oneTwenty = await target.Query(120);
             oneTwenty.ShouldBe(22);
 
-            target.Insert(99, 12);
+            await target.Insert(99, 12);
             target = CreateTarget(3, Storage);
-            var ninetyNineB = target.Query(99);
+            var ninetyNineB = await target.Query(99);
             ninetyNineB.ShouldBe(12);
-            var oneTwentyB = target.Query(120);
+            var oneTwentyB = await target.Query(120);
             oneTwentyB.ShouldBe(22);
 
-            target.Insert(6, 9);
+            await target.Insert(6, 9);
             target = CreateTarget(3, Storage);
-            var six = target.Query(6);
+            var six = await target.Query(6);
             six.ShouldBe(9);
-            var ninetyNine = target.Query(99);
+            var ninetyNine = await target.Query(99);
             ninetyNine.ShouldBe(12);
-            var oneTwentyC = target.Query(120);
+            var oneTwentyC = await target.Query(120);
             oneTwentyC.ShouldBe(22);
 
-            target.Insert(3, 8);
+            await target.Insert(3, 8);
             target = CreateTarget(3, Storage);
-            var three = target.Query(3);
+            var three = await target.Query(3);
             three.ShouldBe(8);
 
-            var threeB = target.Query(6);
+            var threeB = await target.Query(6);
             threeB.ShouldBe(9);
-            var threeC = target.Query(99);
+            var threeC = await target.Query(99);
             threeC.ShouldBe(12);
-            var sixB = target.Query(120);
+            var sixB = await target.Query(120);
             sixB.ShouldBe(22);
 
         }
 
         [Test]
-        public void Can_split_root()
+        public async Task Can_split_root()
         {
             var target = CreateTarget(3);
             target.ShouldNotBeNull();
-            target.Insert(3, 8);
-            target.Insert(6, 9);
-            target.Insert(99, 12);
+            await target.Insert(3, 8);
+            await target.Insert(6, 9);
+            await target.Insert(99, 12);
             target = CreateTarget(3, Storage);
-            var three = target.Query(3);
+            var three = await target.Query(3);
             three.ShouldBe(8);
-            var six = target.Query(6);
+            var six = await target.Query(6);
             six.ShouldBe(9);
-            var ninetyNine = target.Query(99);
+            var ninetyNine = await target.Query(99);
             ninetyNine.ShouldBe(12);
         }
 
         [Test]
-        public void Can_split_root_with_reverse_keys()
+        public async Task Can_split_root_with_reverse_keys()
         {
             var target = CreateTarget(3);
             target.ShouldNotBeNull();
-            target.Insert(99, 12);
-            target.Insert(6, 9);
-            target.Insert(3, 8);
-            target.Insert(1, 4);
+            await target.Insert(99, 12);
+            await target.Insert(6, 9);
+            await target.Insert(3, 8);
+            await target.Insert(1, 4);
             target = CreateTarget(3, Storage);
-            var one = target.Query(1);
+            var one = await target.Query(1);
             one.ShouldBe(4);
-            var three = target.Query(3);
+            var three = await target.Query(3);
             three.ShouldBe(8);
-            var six = target.Query(6);
+            var six = await target.Query(6);
             six.ShouldBe(9);
-            var ninetyNine = target.Query(99);
+            var ninetyNine = await target.Query(99);
             ninetyNine.ShouldBe(12);
         }
 
         [Test]
-        public void Can_query_single_node_no_minitem_key_less_than_items()
+        public async Task Can_query_single_node_no_minitem_key_less_than_items()
         {
             var target = CreateTarget(10);
-            target.Insert(100, 101);
-            target.Insert(80, 81);
-            target.Insert(60, 61);
-            target.Insert(40, 41);
-            target = CreateTarget(10, Storage);
-            var result = target.Query(20);
+            await target.Insert(100, 101);
+            await target.Insert(80, 81);
+            await target.Insert(60, 61);
+            await target.Insert(40, 41);
+                target = CreateTarget(10, Storage);
+            var result = await target.Query(20);
             result.ShouldBe(-1);
         }
 
         [Test]
-        public void Can_query_multi_level_node_key_less_than_items()
+        public async Task Can_query_multi_level_node_key_less_than_items()
         {
             var target = CreateTarget(10);
-            target.Insert(120, 121);
-            target.Insert(110, 111);
-            target.Insert(100, 101);
-            target.Insert(90, 91);
-            target.Insert(80, 81);
-            target.Insert(70, 71);
-            target.Insert(60, 61);
-            target.Insert(50, 51);
-            target.Insert(40, 41);
-            target.Insert(30, 31);
-            target.Insert(20, 21);
-            target.Insert(10, 11);
+            await target.Insert(120, 121);
+            await target.Insert(110, 111);
+            await target.Insert(100, 101);
+            await target.Insert(90, 91);
+            await target.Insert(80, 81);
+            await target.Insert(70, 71);
+            await target.Insert(60, 61);
+            await target.Insert(50, 51);
+            await target.Insert(40, 41);
+            await target.Insert(30, 31);
+            await target.Insert(20, 21);
+            await target.Insert(10, 11);
             target = CreateTarget(10, Storage);
-            var result = target.Query(5);
+            var result = await target.Query(5);
             result.ShouldBe(-1);
         }
 
         [Test]
-        public void Can_query_multi_level_node_key_equal_to_inserted()
+        public async Task Can_query_multi_level_node_key_equal_to_inserted()
         {
             var target = CreateTarget(10);
-            target.Insert(120, 121);
-            target.Insert(110, 111);
-            target.Insert(100, 101);
-            target.Insert(90, 91);
-            target.Insert(80, 81);
-            target.Insert(70, 71);
-            target.Insert(60, 61);
-            target.Insert(50, 51);
-            target.Insert(40, 41);
-            target.Insert(30, 31);
-            target.Insert(20, 21);
-            target.Insert(10, 11);
+            await target.Insert(120, 121);
+            await target.Insert(110, 111);
+            await target.Insert(100, 101);
+            await target.Insert(90, 91);
+            await target.Insert(80, 81);
+            await target.Insert(70, 71);
+            await target.Insert(60, 61);
+            await target.Insert(50, 51);
+            await target.Insert(40, 41);
+            await target.Insert(30, 31);
+            await target.Insert(20, 21);
+            await target.Insert(10, 11);
             target = CreateTarget(10, Storage);
-            var result = target.Query(10);
+            var result = await target.Query(10);
             result.ShouldBe(11);
         }
 
@@ -248,7 +251,7 @@ namespace Doobee.Engine.Test.Index
         [TestCase(100)]
         [TestCase(200)]
         [TestCase(500)]
-        public void Can_run_with_random_data(int branchingTestor)
+        public async Task Can_run_with_random_data(int branchingTestor)
         {
             var data = GetRandomLong(30, 100);
             //_nextAddress = data.Values.Max() + 1;
@@ -257,7 +260,7 @@ namespace Doobee.Engine.Test.Index
             {
                 try
                 {
-                    target.Insert(item.Key, item.Value);
+                    await target.Insert(item.Key, item.Value);
                 }
                 catch (Exception e)
                 {
@@ -270,7 +273,7 @@ namespace Doobee.Engine.Test.Index
             {
                 try
                 {
-                    var val = target.Query(item.Key);
+                    var val = await target.Query(item.Key);
                     val.ShouldBe(item.Value);
                 }
                 catch (Exception e)
@@ -283,7 +286,7 @@ namespace Doobee.Engine.Test.Index
         [Test]
         [Explicit]
         [TestCase(500)]
-        public void Can_run_with_random_data_growing(int branchingTestor)
+        public async Task Can_run_with_random_data_growing(int branchingTestor)
         {
             var max = 1000;
 
@@ -295,7 +298,7 @@ namespace Doobee.Engine.Test.Index
                 {
                     try
                     {
-                        target.Insert(item.Key, item.Value);
+                        await target.Insert(item.Key, item.Value);
                     }
                     catch (Exception e)
                     {
@@ -308,7 +311,7 @@ namespace Doobee.Engine.Test.Index
                 {
                     try
                     {
-                        var val = target.Query(item.Key);
+                        var val = await target.Query(item.Key);
                         val.ShouldBe(item.Value);
                     }
                     catch (Exception e)

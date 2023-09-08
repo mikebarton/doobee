@@ -1,5 +1,7 @@
 ﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using Doobee.Parser.Expressions;
+using Doobee.Parser.Listeners;
 using Doobee.Parser.Visitors;
 using System;
 using System.Collections.Generic;
@@ -18,18 +20,14 @@ namespace Doobee.Parser
             var tokens = new CommonTokenStream(lexer);
             var parser = new DoobeeSqlParser(tokens);
             parser.BuildParseTree = true;
-            var tree = parser.create_tbl_stmt();
-            if (tree.exception != null)
-                throw new SqlParseException("the supplied sql statement was invalid");
-            try
-            {
-                var expression = tree.Accept(new CreateTableVisitor());               
-                return expression;
-            }
-            catch(Exception e)
-            {
-                throw new SqlParseException("an unknown error occurred while parsing sql");
-            }
+            var tree = parser.parse();
+           
+            var expressionBuilder = new ExpressionBuilder();
+            ParseTreeWalker.Default.Walk(expressionBuilder, tree);
+            if (expressionBuilder.Expression == null)
+                throw new SqlParseException("Invalid Statement. Cannot Parse");
+
+            return expressionBuilder.Expression;
         }
     }
 }

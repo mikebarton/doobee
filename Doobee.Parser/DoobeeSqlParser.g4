@@ -6,11 +6,15 @@ options {
     backtrack = true;
 }
 
+parse: create_tbl_stmt EOF
+     | drop_tbl_stmt EOF
+;
 
-create_tbl_stmt: CREATE TABLE create_tbl_body;
-create_tbl_body: ID '(' column_defs ')';
+drop_tbl_stmt: DROP TABLE ID;
 
-column_defs: column_def (',' column_def)*;
+create_tbl_stmt: CREATE TABLE ID column_defs;
+
+column_defs: '(' column_def (',' column_def)* ')';
 column_def: ID type_name column_constraint*;
 
 column_constraint: (PRIMARY KEY)
@@ -21,4 +25,5 @@ type_name: INT
          | TEXT
          | BOOL
 ;
+
 

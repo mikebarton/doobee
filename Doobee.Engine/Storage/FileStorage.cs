@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Doobee.Storage
 {
@@ -10,12 +11,7 @@ namespace Doobee.Storage
         public FileStorage(string filePath)
         {
             Storage = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        }
-
-        public override void Flush()
-        {
-            ((FileStream)Storage).Flush(true);
-        }
+        }        
 
         public override Stream Storage { get; set; }
     }

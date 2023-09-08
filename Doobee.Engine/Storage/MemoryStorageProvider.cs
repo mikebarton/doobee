@@ -7,7 +7,7 @@ namespace Doobee.Storage
 {
     internal class MemoryStorageProvider : IDataStorageProvider
     {
-        public IDataStorage GetItemStorage(Guid id, ConfigurationContext context)
+        public IDataStorage GetItemStorage(Guid id)
         {
             return new MemoryStorage();
         }

@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Doobee.Engine.Index
 {
     internal interface INodeDataContext : IDisposable
     {
-        DataNode Read(long address);
-        long Add(DataNode node);
-        void Update(DataNode node);
-        void Flush();
-        DataNode ReadRootNode();
-        void SetRootNode(DataNode node);
+        Task<DataNode> Read(long address);
+        Task<long> Add(DataNode node);
+        Task Update(DataNode node);
+        Task Flush();
+        Task<DataNode> ReadRootNode();
+        Task SetRootNode(DataNode node);
     }
 }

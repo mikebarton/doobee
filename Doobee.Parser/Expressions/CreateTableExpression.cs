@@ -9,13 +9,13 @@ namespace Doobee.Parser.Expressions
     public class CreateTableExpression : ParseExpression
     {
         
-        public CreateTableExpression(IdExpression id, List<ColumnDefExpression> columns) 
+        public CreateTableExpression(IdExpression id, ColumnDefsExpression columns) 
         {
             TableName = id;
             ColumnDefs = columns;
         }
 
         public IdExpression TableName { get; set; }
-        public List<ColumnDefExpression> ColumnDefs { get; set; }
+        public ColumnDefsExpression ColumnDefs { get; set; }
     }
 }

@@ -8,6 +8,6 @@ namespace Doobee.Storage
 {
     internal interface IDataStorageProvider
     {
-        IDataStorage GetItemStorage(Guid id, ConfigurationContext context);
+        IDataStorage GetItemStorage(Guid id);
     }
 }

@@ -2,10 +2,9 @@
 
 options { caseInsensitive = true; }
 
-LEFT_BRACKET: '(';
-RIGHT_BRACKET: ')';
-COMMA: ',';
 
+
+DROP: D R O P;
 CREATE: C R E A T E;
 TABLE: T A B L E;
 NOT: N O T;
@@ -17,8 +16,12 @@ INT: I N T;
 TEXT: T E X T;
 BOOL: B O O L;
 
+ID: [A-Za-z_#]([A-Za-z#_0-9])*;
 INT_LITERAL: [0-9]+;
-ID: [A-Za-z_#]([A-Za-z#_0-9.])*;
+
+LEFT_BRACKET: '(';
+RIGHT_BRACKET: ')';
+COMMA: ',';
 
 
 fragment A: [Aa];
