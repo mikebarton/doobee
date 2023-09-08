@@ -1,4 +1,5 @@
-﻿using Doobee.Storage;
+﻿using Doobee.Engine.Storage;
+using Doobee.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,8 @@ namespace Doobee.Engine.Engine
     internal class Engine
     {
         private readonly IDataStorageProvider _storageProvider;
-        private IDataStorage _storage;
+        private JsonDataRepo? _entitiesStorage;
+        private DatabaseEntities? _entities;
         private readonly DatabaseConfiguration _databaseConfiguration;
         
 
@@ -22,8 +24,8 @@ namespace Doobee.Engine.Engine
 
         public async Task Start()
         {
-            _storage = _storageProvider.GetItemStorage(_databaseConfiguration.EngineId);
-            var dbEntitiesBytes = _storage.Read(0, _storage.EndOfFileAddress);
+            _entitiesStorage = new JsonDataRepo(_storageProvider.GetItemStorage(_databaseConfiguration.EngineId));
+            _entities = await _entitiesStorage.Read<DatabaseEntities>();
         }
     }
 }

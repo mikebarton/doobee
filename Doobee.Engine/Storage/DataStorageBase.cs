@@ -60,5 +60,11 @@ namespace Doobee.Storage
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public Task Clear()
+        {
+            Storage.SetLength(0);
+            return Storage.FlushAsync();
+        }
     }
 }

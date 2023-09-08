@@ -10,13 +10,19 @@ namespace Doobee.Engine.Engine
     {
         public Guid Id { get; init; }
 
-        public DatabasesEntityType Type { get; init; }
+        public List<DatabaseEntity> Entities { get; init; }
 
-        public enum DatabasesEntityType
+        internal class DatabaseEntity
         {
-            Schema            
+            public Guid Id { get; init; }
+
+            public DatabasesEntityType Type { get; init; }
+
+            public enum DatabasesEntityType
+            {
+                Schema
+            }
         }
     }
-
 
 }

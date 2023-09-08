@@ -11,5 +11,6 @@ namespace Doobee.Storage
         Task<byte[]> Read(long address, long count);
         long EndOfFileAddress { get; }
         Task Flush();
+        Task Clear();
     }
 }
