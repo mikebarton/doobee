@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Doobee.Engine.Instructions
+namespace Doobee.Engine.Messages.Responses
 {
-    internal class InstructionsBuilder
+    internal class CreateTableResponse : Response
     {
     }
 }

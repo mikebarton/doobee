@@ -1,4 +1,6 @@
-﻿using Doobee.Engine.Storage;
+﻿using Doobee.Engine.Instructions;
+using Doobee.Engine.Listeners;
+using Doobee.Engine.Storage;
 using Doobee.Storage;
 using System;
 using System.Collections.Generic;
@@ -10,22 +12,32 @@ namespace Doobee.Engine.Engine
 {
     internal class Engine
     {
-        private readonly IDataStorageProvider _storageProvider;
-        private JsonDataRepo? _entitiesStorage;
-        private DatabaseEntities? _entities;
+        
+        private IMessageListener _listener;
+        private readonly InstructionsBuilder _instructionsBuilder;
         private readonly DatabaseConfiguration _databaseConfiguration;
+        private readonly StatementProcessor _statementProcessor;
         
 
-        public Engine(IDataStorageProvider storageProvider, DatabaseConfiguration config) 
+        public Engine(DatabaseConfiguration config, IMessageListener listener, InstructionsBuilder instructionsBuilder, StatementProcessor statementProcessor) 
         {
-            _storageProvider = storageProvider;
             _databaseConfiguration = config;
+            _listener = listener;
+            _instructionsBuilder = instructionsBuilder;
+            _statementProcessor = statementProcessor;
         }
 
         public async Task Start()
         {
-            _entitiesStorage = new JsonDataRepo(_storageProvider.GetItemStorage(_databaseConfiguration.EngineId));
-            _entities = await _entitiesStorage.Read<DatabaseEntities>();
+            await _statementProcessor.Initialise(_databaseConfiguration);
+            await _listener.Start(async (statements) =>
+            {
+                var statementItems = _instructionsBuilder.Build(statements);
+                await _statementProcessor.ProcessStatements(statementItems);
+                //execute instruction
+                //return results
+                return "result data";
+            });
         }
     }
 }
