@@ -1,5 +1,5 @@
-﻿using Doobee.Engine.Messages.Responses;
-using Doobee.Engine.Messages.Statements;
+﻿using Doobee.Engine.Engine.Processing;
+using Doobee.Engine.Engine.Processing.CreateTable;
 using Doobee.Engine.Schema;
 using Doobee.Engine.Storage;
 using Doobee.Storage;
@@ -11,20 +11,19 @@ using System.Threading.Tasks;
 
 namespace Doobee.Engine.Engine
 {
-    internal class StatementProcessor
+    internal class StatementDispatcher
     {
         private readonly IDataStorageProvider _storageProvider;
+        private readonly ProcessorBase[] _processors;
         private JsonDataRepo? _entitiesStorage;
         private DatabaseEntities? _entities;
         private SchemaManager? _schemaManager;
-        private readonly DdlProcessor _dlProcessor;
-        private readonly DmlProcessor _dlmlProcessor;
+        
 
-        public StatementProcessor(IDataStorageProvider storageProvider, DdlProcessor ddlProcessor, DmlProcessor dmlProcessor)
+        public StatementDispatcher(IDataStorageProvider storageProvider, ProcessorBase[] processors)
         {
-            _storageProvider = storageProvider;
-            _dlProcessor = ddlProcessor;
-            _dlmlProcessor = dmlProcessor;
+            _storageProvider = storageProvider;            
+            _processors = processors;
         }
 
         public async Task Initialise(DatabaseConfiguration config)
@@ -44,19 +43,16 @@ namespace Doobee.Engine.Engine
             _schemaManager = new SchemaManager(_storageProvider.GetItemStorage(schemaId.Id));
         }
 
-        public async Task<List<Response>> ProcessStatements(IReadOnlyList<CreateTableStatement> statements)
+        public async Task<List<Response>> ProcessStatements(IReadOnlyList<Statement> statements)
         {
             if (_schemaManager == null)
                 throw new Exception("You must initialise the StatementProcessor before it can process any statements");
 
             var responses = statements.Select(async x =>
             {
-
-                if (x.IsDdl())
-                    return await _dlProcessor.Process(x, _schemaManager);
-                else
-                    return await _dlmlProcessor.Process(x, _schemaManager);
-
+                var processor = _processors.Single(y => y.CanProcess(x));
+                var response = await processor.Process(x, _schemaManager);
+                return response;
             });
 
             await Task.WhenAll(responses);

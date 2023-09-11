@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Doobee.Engine.Messages.Statements
+namespace Doobee.Engine.Engine.Processing.CreateTable
 {
     internal class CreateTableStatement : Statement
     {

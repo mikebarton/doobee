@@ -1,4 +1,5 @@
-﻿using Doobee.Engine.Messages.Statements;
+﻿using Doobee.Engine.Engine.Processing;
+using Doobee.Engine.Engine.Processing.CreateTable;
 using Doobee.Parser;
 using Doobee.Parser.Expressions;
 using System;
@@ -7,10 +8,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using static Doobee.Engine.Messages.Statements.CreateTableStatement;
-using static Doobee.Engine.Messages.Statements.CreateTableStatement.ColumnPart;
+using static Doobee.Engine.Engine.Processing.CreateTable.CreateTableStatement;
+using static Doobee.Engine.Engine.Processing.CreateTable.CreateTableStatement.ColumnPart;
 
-namespace Doobee.Engine.Messages
+namespace Doobee.Engine.Engine.Processing
 {
     internal class InstructionsBuilder
     {
@@ -20,7 +21,7 @@ namespace Doobee.Engine.Messages
             _sqlParser = parser;
         }
 
-        public List<CreateTableStatement> Build(string[] statements)
+        public List<Statement> Build(string[] statements)
         {
             var getDataType = (TypeExpression type) =>
                 type switch
@@ -40,17 +41,17 @@ namespace Doobee.Engine.Messages
                     throw new ArgumentException("expression is not a create table statement", "expression");
 
                 var createExpression = (CreateTableExpression)expression;
-                var columns = createExpression.ColumnDefs.ColumnDefs.Select(x => 
+                var columns = createExpression.ColumnDefs.ColumnDefs.Select(x =>
                     new ColumnPart(
-                        x.ColumnName.Id, 
-                        x.Constraints.Any(y => y.NotNull || y.PrimaryKey), 
-                        x.Constraints.Any(y => y.PrimaryKey), 
+                        x.ColumnName.Id,
+                        x.Constraints.Any(y => y.NotNull || y.PrimaryKey),
+                        x.Constraints.Any(y => y.PrimaryKey),
                         getDataType(x.ColumnType))
                     ).ToList();
 
                 var result = new CreateTableStatement(createExpression.TableName.Id, columns);
                 return result;
-            }).ToList();
+            }).Cast<Statement>().ToList();
 
         }
     }
