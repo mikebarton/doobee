@@ -16,10 +16,10 @@ namespace Doobee.Engine.Engine
         private IMessageListener _listener;
         private readonly InstructionsBuilder _instructionsBuilder;
         private readonly DatabaseConfiguration _databaseConfiguration;
-        private readonly StatementProcessor _statementProcessor;
+        private readonly StatementDispatcher _statementProcessor;
         
 
-        public Engine(DatabaseConfiguration config, IMessageListener listener, InstructionsBuilder instructionsBuilder, StatementProcessor statementProcessor) 
+        public Engine(DatabaseConfiguration config, IMessageListener listener, InstructionsBuilder instructionsBuilder, StatementDispatcher statementProcessor) 
         {
             _databaseConfiguration = config;
             _listener = listener;
