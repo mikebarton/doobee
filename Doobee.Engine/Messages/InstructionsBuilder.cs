@@ -1,5 +1,4 @@
-﻿using Doobee.Engine.Engine.Model;
-using Doobee.Engine.Instructions.Model;
+﻿using Doobee.Engine.Messages.Statements;
 using Doobee.Parser;
 using Doobee.Parser.Expressions;
 using System;
@@ -8,8 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using static Doobee.Engine.Instructions.Model.CreateTableStatement;
-using static Doobee.Engine.Instructions.Model.CreateTableStatement.ColumnPart;
+using static Doobee.Engine.Messages.Statements.CreateTableStatement;
+using static Doobee.Engine.Messages.Statements.CreateTableStatement.ColumnPart;
 
 namespace Doobee.Engine.Messages
 {

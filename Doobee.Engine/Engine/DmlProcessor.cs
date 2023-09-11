@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Doobee.Engine.Engine
 {
-    internal class DdlProcessor
+    internal class DmlProcessor
     {
         public async Task<Response> Process(Statement statement, SchemaManager schemaManager)
         {

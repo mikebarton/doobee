@@ -1,5 +1,5 @@
-﻿using Doobee.Engine.Instructions;
-using Doobee.Engine.Listeners;
+﻿using Doobee.Engine.Listeners;
+using Doobee.Engine.Messages;
 using Doobee.Engine.Storage;
 using Doobee.Storage;
 using System;
@@ -33,8 +33,8 @@ namespace Doobee.Engine.Engine
             await _listener.Start(async (statements) =>
             {
                 var statementItems = _instructionsBuilder.Build(statements);
-                await _statementProcessor.ProcessStatements(statementItems);
-                //execute instruction
+                var responses = await _statementProcessor.ProcessStatements(statementItems);
+                //serialize responses
                 //return results
                 return "result data";
             });
