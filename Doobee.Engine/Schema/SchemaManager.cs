@@ -18,7 +18,9 @@ namespace Doobee.Engine.Schema
             _storage = new JsonDataRepo(storage);
         }
 
-        private async Task Load()
+        public SchemaDef Schema => _schema;
+
+        public async Task Load()
         {
             if (_schema == null)
             {
@@ -30,6 +32,14 @@ namespace Doobee.Engine.Schema
                     await _storage.Write(_schema);
                 }
             }
+        }
+
+        public async Task Save()
+        {
+            if (_schema == null)
+                throw new Exception("Cannot save schema when it has not already been loaded");
+
+            await _storage.Write(_schema); 
         }
     }
 }

@@ -41,6 +41,7 @@ namespace Doobee.Engine.Engine
                 await _entitiesStorage.Write(schemaId);                
             }
             _schemaManager = new SchemaManager(_storageProvider.GetItemStorage(schemaId.Id));
+            await _schemaManager.Load();
         }
 
         public async Task<List<Response>> ProcessStatements(IReadOnlyList<Statement> statements)

@@ -14,7 +14,7 @@ namespace Doobee.Engine.Schema
         }
 
         public string Name { get; init; }
-        public bool Nullable { get; init; }
-        public bool PrimaryKey { get; init; }
+        public bool Nullable { get; set; }
+        public bool PrimaryKey { get; set; }
     }
 }

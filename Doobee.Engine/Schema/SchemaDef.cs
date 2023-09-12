@@ -10,13 +10,17 @@ namespace Doobee.Engine.Schema
 {
     internal class SchemaDef 
     {        
-        private readonly List<TableDef> _tables = new List<TableDef>();
-            
+        private readonly Dictionary<string, TableDef> _tables = new Dictionary<string, TableDef>();
+        
+        public TableDef? GetTable(string name)
+        {
+            return _tables.TryGetValue(name, out TableDef? table) ? table : null;
+        }
 
         public TableDef AddTable(string name)
         {
             var table = new TableDef(name);
-            _tables.Add(table);
+            _tables.Add(name, table);
             return table;
         }        
     }

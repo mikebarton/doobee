@@ -16,6 +16,6 @@ namespace Doobee.Engine.Engine.Processing
 
         public abstract Type StatementType { get; }
 
-        public abstract Task<Response> Process<T>(T value, SchemaManager schemaManager);
+        public abstract Task<Response> Process(Statement value, SchemaManager schemaManager);
     }
 }

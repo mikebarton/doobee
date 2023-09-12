@@ -8,5 +8,12 @@ namespace Doobee.Engine.Engine.Processing
 {
     internal abstract class Response
     {
+        protected Response(string message, bool success) 
+        {
+            Message = message;
+            Success = success;
+        }
+        public string Message { get; }
+        public bool Success { get; }
     }
 }

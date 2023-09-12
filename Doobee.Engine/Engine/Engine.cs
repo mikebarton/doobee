@@ -11,8 +11,7 @@ using System.Threading.Tasks;
 namespace Doobee.Engine.Engine
 {
     internal class Engine
-    {
-        
+    {        
         private IMessageListener _listener;
         private readonly InstructionsBuilder _instructionsBuilder;
         private readonly DatabaseConfiguration _databaseConfiguration;

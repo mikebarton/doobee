@@ -8,5 +8,11 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
 {
     internal class CreateTableResponse : Response
     {
+        public CreateTableResponse(string message, bool success) : base(message, success)
+        {
+            
+        }
+
+        
     }
 }
