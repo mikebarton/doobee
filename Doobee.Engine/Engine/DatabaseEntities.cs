@@ -10,7 +10,7 @@ namespace Doobee.Engine.Engine
     {
         public Guid Id { get; init; }
 
-        public List<DatabaseEntity> Entities { get; init; }
+        public List<DatabaseEntity> Entities { get; init; } = new List<DatabaseEntity>();
 
         internal class DatabaseEntity
         {

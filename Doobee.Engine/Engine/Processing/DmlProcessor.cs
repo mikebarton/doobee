@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Doobee.Engine.Engine.Processing
 {
-    internal abstract class DmlProcessor<T> : ProcessorBase<T>
+    internal abstract class DmlProcessor<T> : ProcessorBase
     {
         public override Type StatementType => typeof(T);
     }

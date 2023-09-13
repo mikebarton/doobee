@@ -14,13 +14,13 @@ namespace Doobee.Engine.Engine
     internal class StatementDispatcher
     {
         private readonly IDataStorageProvider _storageProvider;
-        private readonly ProcessorBase[] _processors;
+        private readonly IEnumerable<ProcessorBase> _processors;
         private JsonDataRepo? _entitiesStorage;
         private DatabaseEntities? _entities;
         private SchemaManager? _schemaManager;
         
 
-        public StatementDispatcher(IDataStorageProvider storageProvider, ProcessorBase[] processors)
+        public StatementDispatcher(IDataStorageProvider storageProvider, IEnumerable<ProcessorBase> processors)
         {
             _storageProvider = storageProvider;            
             _processors = processors;
@@ -30,6 +30,12 @@ namespace Doobee.Engine.Engine
         {
             _entitiesStorage = new JsonDataRepo(_storageProvider.GetItemStorage(config.EngineId));
             _entities = await _entitiesStorage.Read<DatabaseEntities>();
+            if(_entities == null)
+            {
+                _entities = new DatabaseEntities() { Id = config.EngineId };
+                await _entitiesStorage.Write<DatabaseEntities>(_entities);
+            }
+
             var schemaId = _entities.Entities.SingleOrDefault(x => x.Type == DatabaseEntities.DatabaseEntity.DatabasesEntityType.Schema);
             if(schemaId == null)
             {
@@ -38,8 +44,10 @@ namespace Doobee.Engine.Engine
                     Id = Guid.NewGuid(),
                     Type = DatabaseEntities.DatabaseEntity.DatabasesEntityType.Schema
                 };
-                await _entitiesStorage.Write(schemaId);                
+                _entities.Entities.Add(schemaId);
+                await _entitiesStorage.Write(_entities);                
             }
+
             _schemaManager = new SchemaManager(_storageProvider.GetItemStorage(schemaId.Id));
             await _schemaManager.Load();
         }
@@ -54,7 +62,7 @@ namespace Doobee.Engine.Engine
                 var processor = _processors.Single(y => y.CanProcess(x));
                 var response = await processor.Process(x, _schemaManager);
                 return response;
-            });
+            }).ToList();
 
             await Task.WhenAll(responses);
 

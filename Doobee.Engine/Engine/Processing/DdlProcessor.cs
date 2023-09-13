@@ -14,9 +14,9 @@ namespace Doobee.Engine.Engine.Processing
 
         public override Task<Response> Process(Statement value, SchemaManager schemaManager)
         {
-            return Process(value, schemaManager);
+            return ProcessConcrete((T)value, schemaManager);
         }
 
-        public abstract Task<Response> Process(T value, SchemaManager schemaManager);
+        protected abstract Task<Response> ProcessConcrete(T value, SchemaManager schemaManager);
     }
 }

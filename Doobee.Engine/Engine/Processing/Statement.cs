@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Doobee.Engine.Engine.Statements.CreateTable;
+using Doobee.Engine.Engine.Processing.CreateTable;
 
 namespace Doobee.Engine.Engine.Processing
 {

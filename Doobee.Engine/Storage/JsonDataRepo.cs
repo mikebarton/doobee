@@ -16,9 +16,12 @@ namespace Doobee.Engine.Storage
             _storage = storage;
         }
 
-        public async Task<T> Read<T>()
+        public async Task<T?> Read<T>()
         {
             var bytes = await _storage.Read(0, _storage.EndOfFileAddress);
+
+            if (bytes == null || !bytes.Any())
+                return default(T);
             
             var text = Encoding.UTF8.GetString(bytes);
 

@@ -9,7 +9,7 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
 {
     internal class CreateTableProcessor : DdlProcessor<CreateTableStatement>
     {
-        public override async Task<Response> Process(CreateTableStatement value, SchemaManager schemaManager)
+        protected override async Task<Response> ProcessConcrete(CreateTableStatement value, SchemaManager schemaManager)
         {
             if (schemaManager.Schema.GetTable(value.TableName) != null)
                 return new CreateTableResponse($"Table {value.TableName} already exists", false);
