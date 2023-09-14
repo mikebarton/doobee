@@ -17,6 +17,7 @@ namespace Doobee.Engine.Configuration
         private bool _storageConfigured;
         private bool _listenerConfigured;
         private Guid? _id;
+        private string? _fileStorageRootPath;
 
         public DoobeeConfiguration()
         {
@@ -24,11 +25,12 @@ namespace Doobee.Engine.Configuration
             _builder.UseEngine();
         }
 
-        public DoobeeConfiguration UseFileStorage()
+        public DoobeeConfiguration UseFileStorage(string storageRoot)
         {
             if (_storageConfigured)
                 throw new Exception("Storage is already configured");
-
+            
+            _fileStorageRootPath = storageRoot;
             _builder.UseFileStorage();
             _storageConfigured = true;
             return this;
@@ -67,7 +69,11 @@ namespace Doobee.Engine.Configuration
 
             _builder.ConfigureServices((context, services) =>
             {
-                services.AddSingleton(new DatabaseConfiguration() { EngineId = _id.Value });
+                services.AddSingleton(new DatabaseConfiguration() 
+                { 
+                    EngineId = _id.Value,
+                    FileStorageRootPath = _fileStorageRootPath
+                });
             });
 
             if(!_storageConfigured)

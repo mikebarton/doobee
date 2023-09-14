@@ -8,7 +8,7 @@ namespace Doobee.Engine.Schema
 {
     internal class TableDef
     {
-        private readonly List<ColumnDef> _columns = new List<ColumnDef>();
+        public readonly List<ColumnDef> _columns = new List<ColumnDef>();
 
         public TableDef(string name)
         {

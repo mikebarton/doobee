@@ -9,5 +9,6 @@ namespace Doobee.Engine.Engine
     internal class DatabaseConfiguration
     {
         public Guid EngineId { get; set; }
+        public string? FileStorageRootPath { get; set; }
     }
 }

@@ -41,6 +41,7 @@ namespace Doobee.Engine.Storage
             var bytes = Encoding.UTF8.GetBytes(text);
             await _storage.Clear();
             await _storage.Write(0, bytes);
+            await _storage.Flush();
         }
     }
 }

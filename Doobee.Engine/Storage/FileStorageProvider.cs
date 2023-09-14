@@ -1,4 +1,5 @@
 ﻿using Doobee.Engine.Configuration;
+using Doobee.Engine.Engine;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,9 +10,15 @@ namespace Doobee.Storage
     internal class FileStorageProvider : IDataStorageProvider
     {
         private string _baseFolder;
-        public FileStorageProvider(string baseFolder)
+        public FileStorageProvider(DatabaseConfiguration config)
         {
-            _baseFolder = baseFolder;   
+            if (string.IsNullOrWhiteSpace(config.FileStorageRootPath))
+                throw new Exception($"No Root path configured for file storage");
+
+            if(!Directory.Exists(config.FileStorageRootPath))
+                Directory.CreateDirectory(config.FileStorageRootPath);
+                
+            _baseFolder = config.FileStorageRootPath;   
         }
         public IDataStorage GetItemStorage(Guid id)
         {

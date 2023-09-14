@@ -39,7 +39,7 @@ namespace Doobee.Engine.Schema
             if (_schema == null)
                 throw new Exception("Cannot save schema when it has not already been loaded");
 
-            await _storage.Write(_schema); 
+            await _storage.Write<SchemaDef>(_schema);             
         }
     }
 }

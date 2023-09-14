@@ -3,8 +3,10 @@ using Doobee.Engine.Configuration;
 
 var hostTask = DoobeeConfiguration
     .Create()
-    .UseMemoryStorage()
+    //.UseMemoryStorage()
+    .UseFileStorage(@"C:\temp\doobee\data")
     .UseTestListener()
+    .UseEngineId(Guid.Parse("a571921b-8536-4056-9412-a2392cbdc2db"))
     .Start();
 
 //var host = await hostTask;
