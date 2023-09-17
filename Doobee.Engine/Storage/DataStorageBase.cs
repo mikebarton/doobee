@@ -22,6 +22,7 @@ namespace Doobee.Storage
                 result = Storage.Length;
             }
             await Storage.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+            await Storage.FlushAsync().ConfigureAwait(false);
             return result;
         }
 

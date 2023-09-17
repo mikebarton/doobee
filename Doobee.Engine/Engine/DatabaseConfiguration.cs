@@ -10,5 +10,6 @@ namespace Doobee.Engine.Engine
     {
         public Guid EngineId { get; set; }
         public string? FileStorageRootPath { get; set; }
+        public int IndexBranchingFactor { get; set; } = 50;
     }
 }

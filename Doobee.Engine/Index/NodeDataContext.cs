@@ -36,7 +36,7 @@ namespace Doobee.Engine.Index
                     _rootItem.RootAddress = sizeof(long);
 
                 var rootBytes = BitConverter.GetBytes(_rootItem.RootAddress.Value);
-                await _storage.Write(0, rootBytes);
+                await _storage.Write(0, rootBytes).ConfigureAwait(false);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Doobee.Engine.Index
             {
                 node.NodeAddress = await _storage.Write(null, data).ConfigureAwait(false);
                 _cachedNodes.Add(node.NodeAddress.Value, node);                
-            }
+            }            
         }
 
         private async Task<DataNode> GetNode(long address)
