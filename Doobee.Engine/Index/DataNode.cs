@@ -7,28 +7,28 @@ using System.Threading.Tasks;
 
 namespace Doobee.Engine.Index
 {
-    internal partial class DataNode : IDisposable
+    internal partial class DataNode<TKey> : IDisposable where TKey : IComparable
     {
-        private INodeDataContext _nodeDataSource;
-        private SortedList<long, NodeItem> _items;
+        private INodeDataContext<TKey> _nodeDataSource;
+        private SortedList<TKey, NodeItem<TKey>> _items;
         private int _branchingFactor;
         private long? _parentAddress;
                
 
-        public DataNode(INodeDataContext nodeDataSource, int branchingFactor)
+        public DataNode(INodeDataContext<TKey> nodeDataSource, int branchingFactor)
         {
             _nodeDataSource = nodeDataSource;
-            _items = new SortedList<long, NodeItem>();
+            _items = new SortedList<TKey, NodeItem<TKey>>();
             _branchingFactor = branchingFactor;
         }        
 
-        public async Task Insert(long key, long value)
+        public async Task Insert(TKey key, long value)
         {
             var root = await _nodeDataSource.ReadRootNode().ConfigureAwait(false);
             await root.InsertInternal(key, value).ConfigureAwait(false);
         }
 
-        public async Task<long> Query(long key)
+        public async Task<long> Query(TKey key)
         {
             var root = await _nodeDataSource.ReadRootNode().ConfigureAwait(false);
             return await root.QueryInternal(key).ConfigureAwait(false);
@@ -39,7 +39,7 @@ namespace Doobee.Engine.Index
             return _nodeDataSource.Flush();
         }
 
-        private async Task<long> QueryInternal(long key)
+        private async Task<long> QueryInternal(TKey key)
         {
             if (_items.Count == 0)
                 return -1;
@@ -51,7 +51,7 @@ namespace Doobee.Engine.Index
 
             if (IsLeafNode())
             {
-                if (relevantItem.Key == key)
+                if (relevantItem.Key.CompareTo(key) == 0)
                     return relevantItem.Value;
                 else
                     return -1;
@@ -64,7 +64,7 @@ namespace Doobee.Engine.Index
             return await childNode.QueryInternal(key).ConfigureAwait(false);
         }
 
-        private async Task InsertInternal(long key, long value)
+        private async Task InsertInternal(TKey key, long value)
         {
             if (!IsLeafNode())
             {
@@ -81,7 +81,7 @@ namespace Doobee.Engine.Index
                 }
                 else
                 {
-                    _items.Add(key, new NodeItem
+                    _items.Add(key, new NodeItem<TKey>
                     {
                         Key = key,
                         Value = value,
@@ -100,11 +100,11 @@ namespace Doobee.Engine.Index
         private async Task SplitNode()
         {
             var splitIndex = _items.Count / 2;
-            var newNode = new DataNode(_nodeDataSource, _branchingFactor);
+            var newNode = new DataNode<TKey>(_nodeDataSource, _branchingFactor);
             newNode.NodeModified = true;
             var newNodeAddress = await newNode.WriteNodeToDisk().ConfigureAwait(false);
             var rightItems = _items.Skip(splitIndex).ToList();            
-            _items = new SortedList<long, NodeItem>(_items.Values.Take(splitIndex).ToDictionary(x => x.Key));
+            _items = new SortedList<TKey, NodeItem<TKey>>(_items.Values.Take(splitIndex).ToDictionary(x => x.Key));
             NodeModified = true;
             newNode.NodeModified = true;
             foreach (var item in rightItems)
@@ -118,14 +118,14 @@ namespace Doobee.Engine.Index
                 }
             }            
 
-            var newNodeItem = new NodeItem
+            var newNodeItem = new NodeItem<TKey>
             {
                 Key = rightItems.Min(x => x.Value.Key),
                 DataAddress = newNodeAddress,
                 IsLeaf = false
             };
 
-            var leftItem = new NodeItem
+            var leftItem = new NodeItem<TKey>
             {
                 Key = _items.Min(x => x.Key),
                 DataAddress = NodeAddress,
@@ -140,7 +140,7 @@ namespace Doobee.Engine.Index
                 await parent.SplitNode().ConfigureAwait(false);
         }
                 
-        private async Task<DataNode> BubbleUpToParent(NodeItem left, NodeItem right)
+        private async Task<DataNode<TKey>> BubbleUpToParent(NodeItem<TKey> left, NodeItem<TKey> right)
         {
             if (_parentAddress.HasValue)
             {
@@ -159,7 +159,7 @@ namespace Doobee.Engine.Index
             }
             else
             {
-                var newRoot = new DataNode(_nodeDataSource, _branchingFactor);
+                var newRoot = new DataNode<TKey>(_nodeDataSource, _branchingFactor);
                 newRoot.NodeModified = true;
                 newRoot._items.Add(left.Key, left);
                 newRoot._items.Add(right.Key, right);
@@ -195,15 +195,15 @@ namespace Doobee.Engine.Index
             return _items.Count() == _branchingFactor;
         }
 
-        private NodeItem GetRelevantItem(long key)
+        private NodeItem<TKey> GetRelevantItem(TKey key)
         {
-            NodeItem relevantItem = null;
+            NodeItem<TKey> relevantItem = null;
             if (_items.Count == 1)
                 relevantItem = _items.Values.First();
-            else if (key < _items.Skip(1).Min(x => x.Key))
+            else if (key.CompareTo(_items.Skip(1).Min(x => x.Key)) < 0)
                 relevantItem = _items.Values.FirstOrDefault();
             else
-                relevantItem = _items.Values.LastOrDefault(x => key >= x.Key);
+                relevantItem = _items.Values.LastOrDefault(x => key.CompareTo(x.Key) >= 0);
 
             if (relevantItem == null) throw new Exception($"there is no child node for key {key}");
             if (relevantItem.IsLeaf && relevantItem.Value == 0) throw new Exception($"Invalid value for leaf node - {key}");

@@ -14,7 +14,7 @@ namespace Doobee.Engine.Test.Index
     [TestFixture]
     internal class DataNodeTest
     {
-        private INodeDataContext NodeContext { get; set; }
+        private INodeDataContext<short> NodeContext { get; set; }
         private IDataStorage Storage { get; set; }
 
 
@@ -24,11 +24,11 @@ namespace Doobee.Engine.Test.Index
             Storage = new MemoryStorage();            
         }
 
-        private DataNode CreateTarget(int branchingFactor, IDataStorage? storage = null)
+        private DataNode<long> CreateTarget(int branchingFactor, IDataStorage? storage = null)
         {
-            var context = new NodeDataContext(storage ?? Storage, branchingFactor);
+            var context = new NodeDataContext<long>(storage ?? Storage, branchingFactor);
             context.Initialise().GetAwaiter().GetResult();
-            var item = new DataNode(context, branchingFactor);
+            var item = new DataNode<long>(context, branchingFactor);
             return item;
         }
 

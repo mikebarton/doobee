@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace Doobee.Engine.Index
 {
-    internal interface INodeDataContext : IDisposable
+    internal interface INodeDataContext<TKey> : IDisposable where TKey : IComparable
     {
-        Task<DataNode> Read(long address);
-        Task<long> Add(DataNode node);
-        Task Update(DataNode node);
+        Task<DataNode<TKey>> Read(long address);
+        Task<long> Add(DataNode<TKey> node);
+        Task Update(DataNode<TKey> node);
         Task Flush();
-        Task<DataNode> ReadRootNode();
-        Task SetRootNode(DataNode node);
+        Task<DataNode<TKey>> ReadRootNode();
+        Task SetRootNode(DataNode<TKey> node);
     }
 }
