@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 namespace Doobee.Engine.Schema
 {
     internal class ColumnDef
-    {
-        public ColumnDef(string name)
-        {
-            Name = name;
-        }
-
+    {        
+        public IndexDef? Index { get; set; }
         public string Name { get; init; }
         public bool Nullable { get; set; }
         public bool PrimaryKey { get; set; }

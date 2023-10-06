@@ -20,6 +20,8 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
                 var newCol = newTable.AddColumn(col.ColumnName);
                 newCol.Nullable = !col.NotNull;
                 newCol.PrimaryKey = col.IsPrimaryKey;
+                if(newCol.PrimaryKey)
+                    newCol.Index = new IndexDef { Id = Guid.NewGuid() };
             }
 
             await schemaManager.Save();

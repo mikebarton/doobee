@@ -10,14 +10,10 @@ using System.Threading.Tasks;
 namespace Doobee.Parser.Visitors
 {
     internal class IDVisitor : DoobeeSqlParserBaseVisitor<IdExpression>
-    {
-        
-
+    {   
         public override IdExpression VisitTerminal([NotNull] ITerminalNode node)
         {
             return new IdExpression() { Id = node.GetText() };
-        }
-
-        
+        }        
     }
 }

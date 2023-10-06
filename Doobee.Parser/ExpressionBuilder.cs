@@ -16,6 +16,11 @@ namespace Doobee.Parser.Listeners
             Expression = context.Accept(new CreateTableVisitor());
         }
 
+        public override void EnterInsert_stmt([NotNull] DoobeeSqlParser.Insert_stmtContext context)
+        {
+            Expression = context.Accept(new InsertStatementVisitor());
+        }
+
         public ParseExpression? Expression { get; private set; } = null!;
     }
 }

@@ -19,7 +19,7 @@ namespace Doobee.Engine.Schema
 
         public TableDef AddTable(string name)
         {
-            var table = new TableDef(name);
+            var table = new TableDef { Name = name, Id = Guid.NewGuid() };
             _tables.Add(name, table);
             return table;
         }        

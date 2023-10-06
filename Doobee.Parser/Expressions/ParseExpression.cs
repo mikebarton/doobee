@@ -9,5 +9,6 @@ namespace Doobee.Parser.Expressions
     public class ParseExpression
     {
         public bool IsCreateTableStatement => this is CreateTableExpression;
+        public bool IsInsertExpression => this is InsertExpression;
     }
 }
