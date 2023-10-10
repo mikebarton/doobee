@@ -12,5 +12,14 @@ namespace Doobee.Engine.Schema
         public string Name { get; init; }
         public bool Nullable { get; set; }
         public bool PrimaryKey { get; set; }
+        public ColumnDefType ColumnDefType { get; set; }
+        public int StorageSize { get; set; }
+    }
+
+    internal enum ColumnDefType
+    {
+        Int,
+        Bool,
+        Text
     }
 }

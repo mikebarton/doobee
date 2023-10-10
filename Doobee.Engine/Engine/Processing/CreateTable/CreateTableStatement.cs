@@ -19,12 +19,13 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
 
         public class ColumnPart
         {
-            public ColumnPart(string columnName, bool notNull, bool isPrimaryKey, ColumnType dataType)
+            public ColumnPart(string columnName, bool notNull, bool isPrimaryKey, ColumnType dataType, int storageSizeBytes)
             {
                 ColumnName = columnName;
                 NotNull = notNull;
                 IsPrimaryKey = isPrimaryKey;
                 DataType = dataType;
+                StorageSizeBytes = storageSizeBytes;
             }
 
             public string ColumnName { get; init; }
@@ -38,6 +39,8 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
                 Text,
                 Boolean
             }
+
+            public int StorageSizeBytes { get; init; }
         }
     }
 }

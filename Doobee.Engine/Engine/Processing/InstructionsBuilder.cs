@@ -32,6 +32,15 @@ namespace Doobee.Engine.Engine.Processing
                     _ => throw new NotSupportedException()
                 };
 
+            var getStorageSize = (TypeExpression type) =>
+                type switch
+                {
+                    IntTypeExpression exp => 4,
+                    TextTypeExpression exp => 256,
+                    BoolTypeExpression exp => 1,
+                    _ => throw new NotSupportedException()
+                };
+
             return statements.Select(x => _sqlParser.ParseStatement(x)).Select(expression =>
             {
                 if (expression == null)
@@ -46,7 +55,8 @@ namespace Doobee.Engine.Engine.Processing
                         x.ColumnName.Id,
                         x.Constraints.Any(y => y.NotNull || y.PrimaryKey),
                         x.Constraints.Any(y => y.PrimaryKey),
-                        getDataType(x.ColumnType))
+                        getDataType(x.ColumnType),
+                        getStorageSize(x.ColumnType))
                     ).ToList();
 
                 var result = new CreateTableStatement(createExpression.TableName.Id, columns);
