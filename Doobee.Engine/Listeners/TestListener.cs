@@ -8,8 +8,8 @@ namespace Doobee.Engine.Listeners
 {
     internal class TestListener : IMessageListener
     {
-        private Func<string[], Task<string>>? _messageHandler;
-        public Task Start(Func<string[], Task<string>> messageHandler)
+        private Func<DbConnection, Task>? _messageHandler;
+        public Task Start(Func<DbConnection, Task> messageHandler)
         {
             _messageHandler = messageHandler;
             _ = DoSomething();
@@ -26,8 +26,11 @@ namespace Doobee.Engine.Listeners
                                 Message text,
                                 IsDeleted bool not null
                             )";
-
-            var response = await _messageHandler(new[] { createFoo });
+            var connection = new DbConnection() { SqlStatements = new[] { createFoo } };
+            if (_messageHandler != null)
+            {
+                await _messageHandler(connection);
+            }
         }
     }
 }

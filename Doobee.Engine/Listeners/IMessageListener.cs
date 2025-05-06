@@ -8,6 +8,6 @@ namespace Doobee.Engine.Listeners
 {
     internal interface IMessageListener
     {
-        Task Start(Func<string[], Task<string>> messageHandler);
+        Task Start(Func<DbConnection, Task> messageHandler);
     }
 }

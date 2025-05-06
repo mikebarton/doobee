@@ -8,42 +8,49 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Doobee.Engine.Engine
 {
     internal class Engine : IHostedService
     {        
-        private IMessageListener _listener;
         private readonly InstructionsBuilder _instructionsBuilder;
         private readonly DatabaseConfiguration _databaseConfiguration;
         private readonly StatementDispatcher _statementProcessor;
+        private readonly EngineConnectionDispatcher _engineConnectionDispatcher;
+        private bool _isRunning;
+        
         
 
-        public Engine(DatabaseConfiguration config, IMessageListener listener, InstructionsBuilder instructionsBuilder, StatementDispatcher statementProcessor) 
+        public Engine(DatabaseConfiguration config, InstructionsBuilder instructionsBuilder, StatementDispatcher statementProcessor, EngineConnectionDispatcher dispatcher) 
         {
             _databaseConfiguration = config;
-            _listener = listener;
             _instructionsBuilder = instructionsBuilder;
             _statementProcessor = statementProcessor;
+            _engineConnectionDispatcher = dispatcher;
         }
-        
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            _isRunning = true;
             await _statementProcessor.Initialise(_databaseConfiguration);
-            await _listener.Start(async (statements) =>
+            DoWork(cancellationToken);
+        }
+
+        private async Task DoWork(CancellationToken cancellationToken)
+        {
+            while (_isRunning)
             {
-                var statementItems = _instructionsBuilder.Build(statements);
+                var connection = await _engineConnectionDispatcher.Retrieve(cancellationToken);
+                var statementItems = _instructionsBuilder.Build(connection.SqlStatements);
                 var responses = await _statementProcessor.ProcessStatements(statementItems);
-                //serialize responses
-                //return results
-                return "result data";
-            });
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            _isRunning = false;
             return Task.CompletedTask;
         }
     }
