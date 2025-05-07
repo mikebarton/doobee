@@ -18,6 +18,11 @@ namespace Doobee.Engine.Schema
             return col;
         }
 
+        public ColumnDef? GetColumn(string name)
+        {
+            return _columns.FirstOrDefault(c => c.Name == name);
+        }
+
         public string Name { get; init; }
         public Guid Id { get; init; }
     }

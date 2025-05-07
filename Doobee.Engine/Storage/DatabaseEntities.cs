@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Doobee.Engine.Engine
+namespace Doobee.Engine.Storage
 {
     internal class DatabaseEntities
     {
@@ -20,7 +20,9 @@ namespace Doobee.Engine.Engine
 
             public enum DatabasesEntityType
             {
-                Schema
+                Schema,
+                Table,
+                TableText
             }
         }
     }

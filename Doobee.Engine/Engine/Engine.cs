@@ -1,7 +1,7 @@
 ﻿using Doobee.Engine.Engine.Processing;
 using Doobee.Engine.Listeners;
 using Doobee.Engine.Storage;
-using Doobee.Storage;
+using Doobee.Persistence;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
@@ -16,16 +16,12 @@ namespace Doobee.Engine.Engine
     internal class Engine : IHostedService
     {        
         private readonly InstructionsBuilder _instructionsBuilder;
-        private readonly DatabaseConfiguration _databaseConfiguration;
         private readonly StatementDispatcher _statementProcessor;
         private readonly EngineConnectionDispatcher _engineConnectionDispatcher;
         private bool _isRunning;
-        
-        
 
-        public Engine(DatabaseConfiguration config, InstructionsBuilder instructionsBuilder, StatementDispatcher statementProcessor, EngineConnectionDispatcher dispatcher) 
+        public Engine(InstructionsBuilder instructionsBuilder, StatementDispatcher statementProcessor, EngineConnectionDispatcher dispatcher) 
         {
-            _databaseConfiguration = config;
             _instructionsBuilder = instructionsBuilder;
             _statementProcessor = statementProcessor;
             _engineConnectionDispatcher = dispatcher;
@@ -34,11 +30,10 @@ namespace Doobee.Engine.Engine
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _isRunning = true;
-            await _statementProcessor.Initialise(_databaseConfiguration);
             DoWork(cancellationToken);
         }
 
-        private async Task DoWork(CancellationToken cancellationToken)
+        private async void DoWork(CancellationToken cancellationToken)
         {
             while (_isRunning)
             {

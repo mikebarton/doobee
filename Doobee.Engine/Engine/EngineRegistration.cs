@@ -8,6 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Doobee.Engine.Listeners;
+using Doobee.Engine.Schema;
+using Doobee.Engine.Storage;
+using Doobee.Persistence;
 
 namespace Doobee.Engine.Engine
 {
@@ -21,6 +25,26 @@ namespace Doobee.Engine.Engine
                 services.AddTransient<InstructionsBuilder>();
                 services.AddTransient<SqlParser>();
                 services.AddHostedService<Engine>();
+                services.AddHostedService<Server>();
+                services.AddSingleton<EngineConnectionDispatcher>();
+                services.AddSingleton<EntityPersistence>(provider =>
+                {
+                    var storageProvider = provider.GetRequiredService<IDataStorageProvider>();
+                    var config = provider.GetRequiredService<DatabaseConfiguration>();
+                    var persistence = new EntityPersistence(storageProvider);
+                    persistence.Initialise(config).GetAwaiter().GetResult();
+                    return persistence;
+                });
+                services.AddSingleton<SchemaManager>(provider =>
+                {
+                    var entityPersistence = provider.GetRequiredService<EntityPersistence>();
+                    var schemaStorage = entityPersistence
+                        .GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.Schema).GetAwaiter()
+                        .GetResult();
+                    var schemaManager = new SchemaManager(schemaStorage);
+                    schemaManager.Load().GetAwaiter().GetResult();
+                    return schemaManager;
+                });
             })
             .AddCreateTable();
 

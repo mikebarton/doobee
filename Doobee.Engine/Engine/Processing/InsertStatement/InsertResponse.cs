@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Doobee.Engine.Engine.Processing.InsertStatement
+namespace Doobee.Engine.Engine.Processing.Insert
 {
     internal class InsertResponse : Response
     {

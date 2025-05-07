@@ -2,28 +2,39 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Doobee.Storage
+namespace Doobee.Persistence
 {
     internal abstract class DataStorageBase : IDataStorage
     {
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         public async Task<long> Write(long? address, byte[] data)
         {
-            long result = default(long);
-            if (address.HasValue)
+            await _semaphore.WaitAsync();
+            try
             {
-                Storage.Position = address.Value;
-                result = address.Value;
+                long result = default(long);
+                if (address.HasValue)
+                {
+                    Storage.Position = address.Value;
+                    result = address.Value;
+                }
+                else
+                {
+                    Storage.Position = Storage.Length;
+                    result = Storage.Length;
+                }
+
+                await Storage.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+                await Storage.FlushAsync().ConfigureAwait(false);
+                return result;
             }
-            else
+            finally
             {
-                Storage.Position = Storage.Length;
-                result = Storage.Length;
+                _semaphore.Release();
             }
-            await Storage.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
-            await Storage.FlushAsync().ConfigureAwait(false);
-            return result;
         }
 
         public async Task<byte[]> Read(long address, long count)

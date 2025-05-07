@@ -1,14 +1,8 @@
-﻿using Doobee.Storage;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using Doobee.Persistence;
 
-namespace Doobee.Engine.Storage
+namespace Doobee.Engine.Persistence
 {
     internal static class StorageRegistration
     {
@@ -16,7 +10,7 @@ namespace Doobee.Engine.Storage
         {
             builder.ConfigureServices((context, services) =>
             {
-                services.AddTransient<IDataStorageProvider, FileStorageProvider>();
+                services.AddSingleton<IDataStorageProvider, FileStorageProvider>();
             });
 
             return builder;
@@ -26,7 +20,7 @@ namespace Doobee.Engine.Storage
         {
             builder.ConfigureServices((context, services) =>
             {
-                services.AddTransient<IDataStorageProvider, MemoryStorageProvider>();
+                services.AddSingleton<IDataStorageProvider, MemoryStorageProvider>();
             });
 
             return builder;

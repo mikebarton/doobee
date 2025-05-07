@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Doobee.Engine.Storage;
 using Doobee.Engine.Listeners;
 using Doobee.Engine.Engine;
+using Doobee.Engine.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Doobee.Engine.Configuration

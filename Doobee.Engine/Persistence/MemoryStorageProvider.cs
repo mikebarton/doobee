@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Doobee.Storage
+namespace Doobee.Persistence
 {
     internal class MemoryStorageProvider : IDataStorageProvider
     {

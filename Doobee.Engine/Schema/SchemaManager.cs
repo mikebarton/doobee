@@ -1,5 +1,5 @@
 ﻿using Doobee.Engine.Storage;
-using Doobee.Storage;
+using Doobee.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +11,14 @@ namespace Doobee.Engine.Schema
     internal class SchemaManager
     {
         private readonly JsonDataRepo _storage;
-        private SchemaDef _schema;
+        private SchemaDef? _schema;
 
         public SchemaManager(IDataStorage storage)
         {
             _storage = new JsonDataRepo(storage);
         }
 
-        public SchemaDef Schema => _schema;
+        public SchemaDef Schema => _schema ?? throw new InvalidOperationException("Schema not initialized");
 
         public async Task Load()
         {

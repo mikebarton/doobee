@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Doobee.Parser.Expressions;
 
 namespace Doobee.Engine.Engine.Processing.CreateTable
 {
@@ -12,6 +13,20 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
         {
             TableName = tableName;
             Columns = columns;
+        }
+
+        public CreateTableStatement(CreateTableExpression createExpression)
+        {
+            Columns = createExpression.ColumnDefs.ColumnDefs.Select(x =>
+                new ColumnPart(
+                    x.ColumnName.Id,
+                    x.Constraints.Any(y => y.NotNull || y.PrimaryKey),
+                    x.Constraints.Any(y => y.PrimaryKey),
+                    GetDataType(x.ColumnType),
+                    GetStorageSize(x.ColumnType))
+            ).ToList();
+
+            TableName = createExpression.TableName.Id;
         }
 
         public string TableName { get; }

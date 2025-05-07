@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Doobee.Storage
+namespace Doobee.Persistence
 {
     internal class FileStorage : DataStorageBase
     {

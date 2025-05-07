@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Doobee.Engine.Engine.Processing.Insert;
 using static Doobee.Engine.Engine.Processing.CreateTable.CreateTableStatement;
 using static Doobee.Engine.Engine.Processing.CreateTable.CreateTableStatement.ColumnPart;
 
@@ -23,45 +24,19 @@ namespace Doobee.Engine.Engine.Processing
 
         public List<Statement> Build(string[] statements)
         {
-            var getDataType = (TypeExpression type) =>
-                type switch
-                {
-                    IntTypeExpression exp => ColumnType.Int,
-                    TextTypeExpression exp => ColumnType.Text,
-                    BoolTypeExpression exp => ColumnType.Boolean,
-                    _ => throw new NotSupportedException()
-                };
-
-            var getStorageSize = (TypeExpression type) =>
-                type switch
-                {
-                    IntTypeExpression exp => 4,
-                    TextTypeExpression exp => 256,
-                    BoolTypeExpression exp => 1,
-                    _ => throw new NotSupportedException()
-                };
-
-            return statements.Select(x => _sqlParser.ParseStatement(x)).Select(expression =>
+            return statements.Select(x => _sqlParser.ParseStatement(x)).Select<ParseExpression, Statement>(expression =>
             {
                 if (expression == null)
                     throw new ArgumentNullException("expression");
 
-                if (!expression.IsCreateTableStatement)
-                    throw new ArgumentException("expression is not a create table statement", "expression");
+                if (expression.IsCreateTableStatement)
+                    return new CreateTableStatement((CreateTableExpression)expression);
+                
+                if(expression.IsInsertExpression)
+                    return new InsertStatement((InsertExpression)expression);
 
-                var createExpression = (CreateTableExpression)expression;
-                var columns = createExpression.ColumnDefs.ColumnDefs.Select(x =>
-                    new ColumnPart(
-                        x.ColumnName.Id,
-                        x.Constraints.Any(y => y.NotNull || y.PrimaryKey),
-                        x.Constraints.Any(y => y.PrimaryKey),
-                        getDataType(x.ColumnType),
-                        getStorageSize(x.ColumnType))
-                    ).ToList();
-
-                var result = new CreateTableStatement(createExpression.TableName.Id, columns);
-                return result;
-            }).Cast<Statement>().ToList();
+                throw new InvalidCastException("Expression type is not supported");
+            }).ToList();
 
         }
     }
