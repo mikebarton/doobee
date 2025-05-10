@@ -12,27 +12,34 @@ namespace Doobee.Engine.Engine.Processing.Insert
     internal class InsertProcessor : DmlProcessor<InsertStatement>
     {
         private readonly EntityPersistence _entityPersistence;
+        private readonly SchemaManager _schemaManager;
 
-        public InsertProcessor(EntityPersistence entityPersistence)
+        public InsertProcessor(EntityPersistence entityPersistence, SchemaManager schemaManager)
         {
             _entityPersistence = entityPersistence;
+            _schemaManager = schemaManager;
         }
         
-        protected override async Task<Response> ProcessConcrete(InsertStatement value, SchemaManager schemaManager)
+        protected override async Task<Response> ProcessConcrete(InsertStatement value)
         {
-            var validator = new MultiRowValidator(value.TableName, value.ColumnNames, schemaManager.Schema);
+            var validator = new MultiRowValidator(value.TableName, value.ColumnNames, _schemaManager.Schema);
             var validationResult = validator.Validate(value.RowValues);
             if(!validationResult.IsValid)
                 return new InsertResponse(validationResult.ErrorMessage ?? "Invalid insert statement", false);
             
-            var tableDef = schemaManager.Schema.GetTable(value.TableName);
+            var tableDef = _schemaManager.Schema.GetTable(value.TableName);
             if(tableDef == null)
                 return new InsertResponse("Table not found", false);
             
-            var tableStorage = await _entityPersistence.GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.Table, tableDef.Id);
-            var tableStringStorage = await _entityPersistence.GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.TableText, tableDef.Id);
+            var tableStorage = await _entityPersistence.GetTablePersistence(tableDef);
+            foreach (var row in value.RowValues)
+            {
+                await tableStorage.WriteRecord(row);
+            }
 
-            throw new NotImplementedException();
+            await tableStorage.Flush();
+            
+            return new InsertResponse($"{value.RowValues.Length} successfully inserted", true);
         }
 
         

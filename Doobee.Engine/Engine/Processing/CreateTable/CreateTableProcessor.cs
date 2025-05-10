@@ -10,9 +10,15 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
 {
     internal class CreateTableProcessor : DdlProcessor<CreateTableStatement>
     {
-        protected override async Task<Response> ProcessConcrete(CreateTableStatement value, SchemaManager schemaManager)
+        private readonly SchemaManager _schemaManager;
+
+        public CreateTableProcessor(SchemaManager schemaManager)
         {
-            if (schemaManager.Schema.GetTable(value.TableName) != null)
+            _schemaManager = schemaManager;
+        }
+        protected override async Task<Response> ProcessConcrete(CreateTableStatement value)
+        {
+            if (_schemaManager.Schema.GetTable(value.TableName) != null)
                 return new CreateTableResponse($"Table {value.TableName} already exists", false);
 
             var getDataType = (CreateTableStatement.ColumnPart.ColumnType colType) =>
@@ -25,7 +31,7 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
                 };
             
 
-            var newTable = schemaManager.Schema.AddTable(value.TableName);
+            var newTable = _schemaManager.Schema.AddTable(value.TableName);
             foreach (var col in value.Columns)
             {
                 var newCol = newTable.AddColumn(col.ColumnName);
@@ -37,7 +43,7 @@ namespace Doobee.Engine.Engine.Processing.CreateTable
                     newCol.Index = new IndexDef { Id = Guid.NewGuid() };
             }
 
-            await schemaManager.Save();
+            await _schemaManager.Save();
             return new CreateTableResponse($"Table {value.TableName} successfully created", true);
         }
     }

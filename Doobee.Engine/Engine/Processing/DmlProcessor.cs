@@ -11,11 +11,11 @@ namespace Doobee.Engine.Engine.Processing
     {
         public override Type StatementType => typeof(T);
 
-        public override Task<Response> Process(Statement value, SchemaManager schemaManager)
+        public override Task<Response> Process(Statement value)
         {
-            return ProcessConcrete((T)value, schemaManager);
+            return ProcessConcrete((T)value);
         }
 
-        protected abstract Task<Response> ProcessConcrete(T value, SchemaManager schemaManager);
+        protected abstract Task<Response> ProcessConcrete(T value);
     }
 }

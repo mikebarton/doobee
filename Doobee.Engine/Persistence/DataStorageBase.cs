@@ -28,7 +28,6 @@ namespace Doobee.Persistence
                 }
 
                 await Storage.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
-                await Storage.FlushAsync().ConfigureAwait(false);
                 return result;
             }
             finally

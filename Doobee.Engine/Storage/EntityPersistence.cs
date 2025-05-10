@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Doobee.Engine.Engine;
+using Doobee.Engine.Schema;
 using Doobee.Persistence;
 
 namespace Doobee.Engine.Storage;
@@ -30,7 +31,27 @@ internal class EntityPersistence
         }
     }
 
-    public async ValueTask<IDataStorage> GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType entityType, Guid? id = null)
+    public async Task<SchemaManager> GetSchemaPersistence()
+    {
+        var storage = await GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.Schema);
+        var schemaManager = new SchemaManager(storage);
+        await schemaManager.Load();
+        return schemaManager;
+    }
+
+    public async Task<IEntityRecordPersistence> GetTablePersistence(TableDef tableDef)
+    {
+        var fixedStorage = await GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.Table, tableDef.Id);
+        var variableStorage = await GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.TableText, tableDef.Id);
+        var tableStorage = new TableStorage()
+        {
+            FixedSizeStorage = fixedStorage,
+            VariableSizeStorage = variableStorage,
+        };
+        return new EntityRecordPersistence(tableDef, tableStorage);
+    }
+
+    private async ValueTask<IDataStorage> GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType entityType, Guid? id = null)
     {
         var entityMetaData = _entities.Entities.SingleOrDefault(x => x.Type == entityType && (id == null || x.Id == id));
         if (entityMetaData == null)

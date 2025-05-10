@@ -38,12 +38,7 @@ namespace Doobee.Engine.Engine
                 services.AddSingleton<SchemaManager>(provider =>
                 {
                     var entityPersistence = provider.GetRequiredService<EntityPersistence>();
-                    var schemaStorage = entityPersistence
-                        .GetOrAddStorage(DatabaseEntities.DatabaseEntity.DatabasesEntityType.Schema).GetAwaiter()
-                        .GetResult();
-                    var schemaManager = new SchemaManager(schemaStorage);
-                    schemaManager.Load().GetAwaiter().GetResult();
-                    return schemaManager;
+                    return entityPersistence.GetSchemaPersistence().GetAwaiter().GetResult();
                 });
             })
             .AddCreateTable();

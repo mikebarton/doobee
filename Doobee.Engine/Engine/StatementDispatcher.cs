@@ -14,24 +14,18 @@ namespace Doobee.Engine.Engine
     internal class StatementDispatcher
     {
         private readonly IEnumerable<ProcessorBase> _processors;
-        private SchemaManager? _schemaManager;
-        
 
-        public StatementDispatcher(IEnumerable<ProcessorBase> processors, SchemaManager schemaManager)
+        public StatementDispatcher(IEnumerable<ProcessorBase> processors)
         {
             _processors = processors;
-            _schemaManager = schemaManager;
         }
 
         public async Task<List<Response>> ProcessStatements(IReadOnlyList<Statement> statements)
         {
-            if (_schemaManager == null)
-                throw new Exception("You must initialise the StatementProcessor before it can process any statements");
-
             var responses = statements.Select(async x =>
             {
                 var processor = _processors.Single(y => y.CanProcess(x));
-                var response = await processor.Process(x, _schemaManager);
+                var response = await processor.Process(x);
                 return response;
             }).ToList();
 
