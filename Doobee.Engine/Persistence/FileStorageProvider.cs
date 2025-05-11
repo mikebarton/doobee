@@ -1,6 +1,7 @@
 ﻿using Doobee.Engine.Configuration;
 using Doobee.Engine.Engine;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,6 +11,9 @@ namespace Doobee.Persistence
     internal class FileStorageProvider : IDataStorageProvider
     {
         private string _baseFolder;
+
+        private readonly ConcurrentDictionary<string, FileStorage> _fileStorage =
+            new ConcurrentDictionary<string, FileStorage>();
         private FileStorage? _storage;
         private readonly object _storageLock = new object();
         public FileStorageProvider(DatabaseConfiguration config)
@@ -22,23 +26,31 @@ namespace Doobee.Persistence
                 
             _baseFolder = config.FileStorageRootPath;   
         }
-        public IDataStorage GetItemStorage(Guid id)
+        public IDataStorage GetItemStorage(Guid id, string? variant = null)
         {
-            var fullPath = Path.Combine(_baseFolder, $"{id.ToString()}.jdb");
+            var fullPath = variant == null ? 
+                Path.Combine(_baseFolder, $"{id.ToString()}.jdb") : 
+                Path.Combine(_baseFolder, $"{id.ToString()}-{variant}.jdb");
             //if (!File.Exists(fullPath))
             //    throw new InvalidOperationException("can not find file " + fullPath);
-
-            if (_storage == null)
+            
+            
+            FileStorage? fileStorage = null;
+            var cacheKey = GetCacheKey(id, variant);
+            if (!_fileStorage.TryGetValue(cacheKey, out fileStorage))
             {
                 lock (_storageLock)
                 {
-                    if (_storage == null)
+                    if (!_fileStorage.TryGetValue(cacheKey, out fileStorage))
                     {
-                        _storage = new FileStorage(fullPath);
+                        fileStorage = new FileStorage(fullPath);
+                        _fileStorage[cacheKey] = fileStorage;
                     }
                 }
             }
-            return _storage;
+            return fileStorage;
         }
+        
+        private string GetCacheKey(Guid id, string? variant) => $"{id.ToString()}-{variant ?? "none"}";
     }
 }

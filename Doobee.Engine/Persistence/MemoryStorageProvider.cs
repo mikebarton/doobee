@@ -7,7 +7,7 @@ namespace Doobee.Persistence
 {
     internal class MemoryStorageProvider : IDataStorageProvider
     {
-        public IDataStorage GetItemStorage(Guid id)
+        public IDataStorage GetItemStorage(Guid id, string? variant = null)
         {
             return new MemoryStorage();
         }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Doobee.Engine.Engine.Processing.Insert;
 using Doobee.Engine.Listeners;
 using Doobee.Engine.Schema;
 using Doobee.Engine.Storage;
@@ -41,16 +42,17 @@ namespace Doobee.Engine.Engine
                     return entityPersistence.GetSchemaPersistence().GetAwaiter().GetResult();
                 });
             })
-            .AddCreateTable();
+            .AddSqlProcessors();
 
             return hostBuilder;
         }
 
-        public static IHostBuilder AddCreateTable(this IHostBuilder hostBuilder)
+        public static IHostBuilder AddSqlProcessors(this IHostBuilder hostBuilder)
         {
             hostBuilder.ConfigureServices((context, services) =>
             {
                 services.AddTransient<ProcessorBase, CreateTableProcessor>();
+                services.AddTransient<ProcessorBase, InsertProcessor>();
             });
             return hostBuilder; 
         }

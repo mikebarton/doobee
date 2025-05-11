@@ -77,6 +77,6 @@ internal class EntityPersistence
             }
         }
 
-        return _storageProvider.GetItemStorage(entityMetaData.Id);
+        return _storageProvider.GetItemStorage(entityMetaData.Id, entityType.ToString());
     }
 }

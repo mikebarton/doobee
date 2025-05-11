@@ -8,6 +8,6 @@ namespace Doobee.Persistence
 {
     internal interface IDataStorageProvider
     {
-        IDataStorage GetItemStorage(Guid id);
+        IDataStorage GetItemStorage(Guid id, string? variant = null);
     }
 }

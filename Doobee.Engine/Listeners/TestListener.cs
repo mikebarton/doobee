@@ -19,14 +19,17 @@ namespace Doobee.Engine.Listeners
         public async Task DoSomething()
         {
 
-            await Task.Delay(5000);
+            await Task.Delay(1000);
 
             var createFoo = @"create table foo(
                                 FooId int primary key,
                                 Message text,
                                 IsDeleted bool not null
-                            )";
-            var connection = new DbConnection() { SqlStatements = new[] { createFoo } };
+                            );
+                            insert into foo 
+                                (FooId, Message, IsDeleted) 
+                                values (1, 'Hello', false);";
+            var connection = new DbConnection() { SqlStatements = createFoo.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) };
             if (_messageHandler != null)
             {
                 await _messageHandler(connection);

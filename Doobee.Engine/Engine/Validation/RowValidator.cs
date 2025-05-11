@@ -38,7 +38,7 @@ internal class RowValidator
 
             for (int i = 0; i < rowValues.Length; i++)
             {
-                var validationResult = validators[i].IsValid(rowValues[i]);
+                var validationResult = validators[i].IsValid(rowValues[i].Value);
                 if(!validationResult.IsValid)
                     return validationResult;
             }

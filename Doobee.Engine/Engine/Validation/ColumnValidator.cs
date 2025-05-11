@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Doobee.Engine.Schema;
 
 namespace Doobee.Engine.Engine.Validation;
@@ -18,6 +19,10 @@ internal class ColumnValidator
         result ??= ValidateIntType(obj);
         result ??= ValidateBoolType(obj);
         result ??= ValidateTextType(obj);
+        
+        if(result != null)
+            return result;
+        
         return new ValidationResult(true, null);
     }
 
@@ -56,7 +61,13 @@ internal class ColumnValidator
         
         if (obj == null)
             return null;
-
+        
+        if (obj is double dubs)
+        {
+            if (dubs % 1 == 0)
+                return null;
+        }
+        
         if (obj is int intValue)
             return null;
         
