@@ -16,6 +16,13 @@ PRIMARY: P R I M A R Y;
 KEY: K E Y;
 TRUE: T R U E;
 FALSE: F A L S E;
+SELECT: S E L E C T;
+FROM: F R O M;
+WHERE: W H E R E;
+EQUALS: '=';
+BETWEEN: B E T W E E N;
+TOP: T O P;
+STAR: '*';
 
 INT: I N T;
 TEXT: T E X T;

@@ -21,11 +21,10 @@ namespace Doobee.Parser.Visitors
             if (context.exception != null)
                 throw new SqlParseException("unable to parse insert statement");
 
-            foreach (var e in context.children)
-            {
-                e.Accept(this);
-            }
-
+            _id = context.table_name().Accept(new IDVisitor());
+            _colNames = context.column_list().Accept(new ColumnListVisitor());
+            _values = context.values_clause().Accept(new ValuesClauseVisitor());
+            
             if (_id == null || _colNames == null || _values == null)
                 throw new SqlParseException("unable to parse insert statement");
             if (!_values.All(x=>x.Values.Count == _colNames.Count))
@@ -33,41 +32,6 @@ namespace Doobee.Parser.Visitors
 
             return new InsertExpression { TableName = _id, ColumnNames = _colNames, ValuesExpressions = _values };
         }
-
-        public override InsertExpression VisitValues_clause([NotNull] DoobeeSqlParser.Values_clauseContext context)
-        {
-            context.children[0].Accept(this);
-            _values = context.value_row().Select(x=>x.Accept(new ValueExpressionVisitor())).ToList();
-            return null;
-        }
-
-        public override InsertExpression VisitColumn_list([NotNull] DoobeeSqlParser.Column_listContext context)
-        {
-            var hasValidNumberChildren = context.children.Count == 1 || context.children.Count%2 == 1;
-            if (!hasValidNumberChildren)
-                throw new SqlParseException("Invalid number of arguments in column list");
-
-            _colNames = context.column_name().Select(x => x.ID().Accept(new IDVisitor())).ToList();
-            return null;
-        }
-
-        public override InsertExpression VisitTable_name([NotNull] DoobeeSqlParser.Table_nameContext context)
-        {
-            _id = context.Accept(new IDVisitor());
-            return null;
-        }
-
-        public override InsertExpression VisitLiteral_value([NotNull] DoobeeSqlParser.Literal_valueContext context)
-        {
-            return base.VisitLiteral_value(context);
-        }
-
-        public override InsertExpression VisitTerminal([NotNull] ITerminalNode node)
-        {
-            return base.VisitTerminal(node);
-        }
-
-        
 
         public override InsertExpression VisitErrorNode([NotNull] IErrorNode node)
         {

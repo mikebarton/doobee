@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace Doobee.Parser.Expressions
 {
-    public class IdExpression
+    public class IdExpression : ValueExpression
     {
-        public string Id { get; set; }
+        public IdExpression(string Id) : base(Id)
+        {}
+        
+        public string Id => base.Value.ToString();
     }
 }

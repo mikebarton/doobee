@@ -13,7 +13,7 @@ namespace Doobee.Parser.Visitors
     {   
         public override IdExpression VisitTerminal([NotNull] ITerminalNode node)
         {
-            return new IdExpression() { Id = node.GetText() };
+            return new IdExpression(node.GetText());
         }        
     }
 }

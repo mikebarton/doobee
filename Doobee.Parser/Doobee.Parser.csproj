@@ -14,4 +14,9 @@
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DoobeeSqlLexer.g4" />
+    <Content Include="DoobeeSqlParser.g4" />
+  </ItemGroup>
 </Project>

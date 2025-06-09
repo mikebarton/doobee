@@ -15,10 +15,15 @@ namespace Doobee.Parser.Listeners
         {
             Expression = context.Accept(new CreateTableVisitor());
         }
-
+        
         public override void EnterInsert_stmt([NotNull] DoobeeSqlParser.Insert_stmtContext context)
         {
             Expression = context.Accept(new InsertStatementVisitor());
+        }
+
+        public override void EnterSelect_stmt([NotNull] DoobeeSqlParser.Select_stmtContext context)
+        {
+            Expression = context.Accept(new SelectVisitor());
         }
 
         public ParseExpression? Expression { get; private set; } = null!;
