@@ -21,6 +21,11 @@ namespace Doobee.Parser.Visitors
             if (context.exception != null)
                 throw new SqlParseException("unable to parse insert statement");
 
+            foreach (var contextChild in context.children)
+            {
+                contextChild.Accept(this);
+            }
+
             _id = context.table_name().Accept(new IDVisitor());
             _colNames = context.column_list().Accept(new ColumnListVisitor());
             _values = context.values_clause().Accept(new ValuesClauseVisitor());

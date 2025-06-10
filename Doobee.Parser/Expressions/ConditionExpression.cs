@@ -6,10 +6,12 @@ public class ConditionExpression
 
 public class IsNullCondition : ConditionExpression
 {
+    public IdExpression ColumnExpression { get; set; } = null!;
 }
 
 public class NotConditionExpression : ConditionExpression
 {
+    public ConditionExpression Condition { get; set; }
 }
 
 public class SubqueryEqualsExpression : ConditionExpression
@@ -24,14 +26,15 @@ public class SubqueryInExpression : ConditionExpression
     public SelectExpression SelectExpression { get; set; } = null!;
 }
 
-public class LikeCondition : ConditionExpression
+public class LikeExpression : ConditionExpression
 {
     public IdExpression ColumnName { get; set; } = null!;
     public ValueExpression Value { get; set; } = null!;
 }
 
-public class BetweenExpress : ConditionExpression
+public class BetweenExpression : ConditionExpression
 {
+    public IdExpression ColumnName { get; set; } = null!;
     public ValueExpression LeftExpression { get; set; }
     public ValueExpression RightExpression { get; set; }
 }
@@ -62,10 +65,12 @@ public class EqualExpression : ConditionExpression
 
 public class AndConditionExpression : ConditionExpression
 {
-    public ConditionExpression AndExpression { get; set; }
+    public ConditionExpression LeftExpression { get; set; }
+    public ConditionExpression RightExpression { get; set; }
 }
 
 public class OrConditionExpression : ConditionExpression
 {
-    public ConditionExpression OrExpression { get; set; }
+    public ConditionExpression LeftExpression { get; set; }
+    public ConditionExpression RightExpression { get; set; }
 }

@@ -18,6 +18,7 @@ public class SelectVisitor : DoobeeSqlParserBaseVisitor<SelectExpression>
             throw new SqlParseException("unable to parse insert statement");
 
         _tableName = context.table_name().Accept(new IDVisitor());
+        _whereExpression = context.where_clause()?.Accept(new WhereVisitor());
 
         foreach (var child in context.children)
         {
@@ -62,6 +63,6 @@ public class SelectVisitor : DoobeeSqlParserBaseVisitor<SelectExpression>
     
     public override SelectExpression VisitErrorNode([NotNull] IErrorNode node)
     {
-        throw new SqlParseException("unable to parse insert statement");
+        throw new SqlParseException("unable to parse select statement");
     }
 }
